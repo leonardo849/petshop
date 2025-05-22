@@ -1,0 +1,118 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  address String
+  pets Pet[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Pet {
+  id String @id @default(uuid())
+  name String
+  species String 
+  race String
+  dateOfBirth DateTime 
+  weight Float
+  customer Customer @relation(fields: [customerID], references: [id], onDelete: Cascade)
+  customerID String
+  scheduling Scheduling[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Service {
+  id String @id @default(uuid())
+  name String
+  description String
+  price Float
+  scheduling Scheduling[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Scheduling {
+  id String @id @default(uuid())
+  pet Pet @relation(fields: [petID], references: [id])
+  petID String
+  service Service @relation(fields: [serviceID], references: [id])
+  serviceID String
+  date DateTime
+  workers WorkersOnSchedulings[]
+  status Status @default(SCHEDULED)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Worker {
+  id String @id @default(uuid())
+  name String
+  role Role 
+  email String @unique
+  salary Float
+  schedulings WorkersOnSchedulings[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WorkersOnSchedulings {
+  worker Worker @relation(fields: [workerID], references: [id])
+  workerID String
+  scheduling Scheduling @relation(fields: [schedulingID], references: [id])
+  schedulingID String
+  @@id([workerID, schedulingID])
+}
+
+model Product {
+  id String @id @default(uuid())
+  name String
+  description String
+  price Float
+  quantity Int
+  sales ProductsOnSale[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Sale {
+  id String @id @default(uuid())
+  products ProductsOnSale[]
+  createdAt DateTime @default(now())
+}
+
+model ProductsOnSale {
+  product Product @relation(fields: [productID], references: [id])
+  productID String
+  sale Sale @relation(fields: [saleID], references: [id])
+  saleID String
+  @@id([productID, saleID])
+}
+
+enum Role {
+  VETERINARIAN
+  CASHIER
+  SERVICEPROVIDER //like the guy who bathes the dogs
+}
+
+enum Status {
+  SCHEDULED
+  COMPLETED
+  CANCELED
+}
