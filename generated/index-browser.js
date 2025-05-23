@@ -125,6 +125,7 @@ exports.Prisma.CustomerScalarFieldEnum = {
   name: 'name',
   email: 'email',
   address: 'address',
+  password: 'password',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -166,6 +167,7 @@ exports.Prisma.WorkerScalarFieldEnum = {
   role: 'role',
   email: 'email',
   salary: 'salary',
+  password: 'password',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -211,6 +213,7 @@ exports.Status = exports.$Enums.Status = {
 };
 
 exports.Role = exports.$Enums.Role = {
+  MANAGER: 'MANAGER',
   VETERINARIAN: 'VETERINARIAN',
   CASHIER: 'CASHIER',
   SERVICEPROVIDER: 'SERVICEPROVIDER'
