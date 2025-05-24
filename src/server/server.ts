@@ -1,7 +1,7 @@
 import { httpErrors } from "@fastify/sensible";
 import { FastifyInstance } from "fastify";
 import { HttpError } from "@fastify/sensible";
-import { WorkerRoutes } from "./worker.routes.js";
+import { WorkerRoutes } from "./routes/worker.routes.js"
 import { PrismaClient } from "../../generated/client.js";
 
 export class Server {
@@ -21,7 +21,7 @@ export class Server {
         }
     }
     private SetupRoutes() {
-        this.workerRoutes.SetupWorkerRoutes(this.prisma)
+        this.workerRoutes.SetupWorkerRoutes()
     }
     private SetErrorHandler() {
        this.app.setErrorHandler((error, request, reply) => {

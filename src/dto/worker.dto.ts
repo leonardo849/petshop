@@ -28,3 +28,16 @@ export class CreateWorkerDTO {
         this.password = password
     }
 }
+
+export class LoginWorkerDTO  {
+    @IsEmail()
+    email: string
+
+    @IsStrongPassword()
+    password: string
+
+    constructor(email: string, password: string) {
+        this.email = email
+        this.password = password
+    }
+}
