@@ -1,8 +1,8 @@
-import { httpErrors } from "@fastify/sensible";
 import { FastifyInstance } from "fastify";
 import { HttpError } from "@fastify/sensible";
 import { WorkerRoutes } from "./routes/worker.routes.js"
 import { PrismaClient } from "../../generated/client.js";
+import { verifyJWT } from "./middlewares/verify-jwt.js";
 
 export class Server {
     private prisma = new PrismaClient()
@@ -14,6 +14,7 @@ export class Server {
         try {
             this.SetErrorHandler()
             this.SetupRoutes()
+            this.SetupHooks()
             await this.app.listen({host: "0.0.0.0", port: port})
             console.log(`server is running on port ${port}`)
         } catch (error) {
@@ -31,5 +32,8 @@ export class Server {
                 reply.status(500).send({message: error.message})
             }
         })
+    }
+    private SetupHooks() {
+        this.app.addHook("onRequest", verifyJWT)
     }
 }
