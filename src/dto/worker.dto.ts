@@ -5,39 +5,41 @@ import { MaxDecimalsPlaces } from "../decorators/max_decimal_places.js";
 
 export class CreateWorkerDTO {
     @Length(10, 150)
-    name: string
+    name!: string
 
     @IsEnum(Role)
-    role: Role
+    role!: Role
 
     @IsEmail()
-    email: string
+    email!: string
 
     @IsNumber()
     @MaxDecimalsPlaces(2)
-    salary: number
+    salary!: number
 
     @IsStrongPassword()
-    password: string
-
-    constructor(name: string, role: Role, email: string, salary: number, password: string) {
-        this.name = name
-        this.role = role
-        this.email = email
-        this.salary = salary
-        this.password = password
-    }
+    password!: string
 }
 
 export class LoginWorkerDTO  {
     @IsEmail()
-    email: string
+    email!: string
 
     @IsStrongPassword()
-    password: string
+    password!: string
+}
 
-    constructor(email: string, password: string) {
-        this.email = email
-        this.password = password
-    }
+export class UpdateWorkerDTO {
+    @IsOptional()
+    @Length(10, 150)
+    name?: string
+
+    @IsOptional()
+    @IsEnum(Role)
+    role?: Role
+
+    @IsOptional()
+    @IsNumber()
+    @MaxDecimalsPlaces(2)
+    salary?: number
 }

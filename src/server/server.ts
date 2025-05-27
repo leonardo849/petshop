@@ -3,11 +3,13 @@ import { HttpError } from "@fastify/sensible";
 import { WorkerRoutes } from "./routes/worker.routes.js"
 import { PrismaClient } from "../../generated/client.js";
 import { verifyJWT } from "./middlewares/verify-jwt.js";
+import { isOutOfDate } from "./middlewares/is-out-of-date.js";
 
 export class Server {
-    private prisma = new PrismaClient()
+    private prisma: PrismaClient = new PrismaClient()
     private workerRoutes: WorkerRoutes
     constructor(private readonly app: FastifyInstance) {
+        const prisma = new PrismaClient()
         this.workerRoutes = new WorkerRoutes(app, this.prisma)
     }
     async RunServer(port: number) {
@@ -18,7 +20,8 @@ export class Server {
             await this.app.listen({host: "0.0.0.0", port: port})
             console.log(`server is running on port ${port}`)
         } catch (error) {
-
+            console.error(error)
+            process.exit(1)
         }
     }
     private SetupRoutes() {
@@ -33,7 +36,10 @@ export class Server {
             }
         })
     }
-    private SetupHooks() {
-        this.app.addHook("onRequest", verifyJWT)
+    private  SetupHooks() {
+        this.app.addHook("onRequest", async (request, reply) => {
+            await verifyJWT(request, reply)
+            await isOutOfDate(request, reply, this.app, this.prisma)
+        })
     }
 }

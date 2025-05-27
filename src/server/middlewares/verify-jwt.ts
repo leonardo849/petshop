@@ -14,7 +14,7 @@ export async function verifyJWT(req: FastifyRequest, reply: FastifyReply) {
         }
         const payload = await JWT.VerifyJWT(req.headers.authorization);
 
-        (req as IRequestWithUser).user = payload;
+        req.user = payload;
     } catch (error) {
         reply.code(401).send({error: "jwt is invalid"})
     }

@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { WorkerService } from "../services/worker.service.js";
 import { PrismaClient } from "../../generated/index.js";
-import { CreateWorkerDTO, LoginWorkerDTO } from "../dto/worker.dto.js";
+import { CreateWorkerDTO, LoginWorkerDTO, UpdateWorkerDTO } from "../dto/worker.dto.js";
 
 export class WorkerController {
     private workerService: WorkerService
@@ -31,6 +31,34 @@ export class WorkerController {
         try {
             const jwt = await this.workerService.LoginWorker(body)
             return jwt
+        } catch (error) {
+            throw error
+        }
+    }
+    async DeleteOneWorkerByEmail(request: FastifyRequest, reply: FastifyReply) {
+        const {email}  = request.params as {email: string}
+        try {
+            const message = await this.workerService.DeleteWorkerByEmail(email)
+            return message
+        } catch (error) {
+            throw error
+        }
+    }
+    async UpdateOneWorkerByEmail(request: FastifyRequest, reply: FastifyReply) {
+        const {email}  = request.params as {email: string}
+        const body = request.body as UpdateWorkerDTO
+        try {
+            const message = await this.workerService.UpdateWorkerByEmail(body, email)
+            return message
+        } catch (error) {
+            throw error
+        }
+    }
+    async FindOneWorkerByEmail(request: FastifyRequest, reply: FastifyReply) {
+        const {email}  = request.params as {email: string}
+        try {
+            const worker = await this.workerService.FindWorkerByEmail(email)
+            return worker
         } catch (error) {
             throw error
         }

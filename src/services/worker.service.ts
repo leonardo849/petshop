@@ -1,11 +1,11 @@
 import { FastifyInstance } from "fastify";
-import { PrismaClient} from "../../generated/client.js";
-import { CreateWorkerDTO, LoginWorkerDTO } from "../dto/worker.dto.js";
+import { PrismaClient, Role} from "../../generated/client.js";
+import { CreateWorkerDTO, LoginWorkerDTO, UpdateWorkerDTO } from "../dto/worker.dto.js";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { HashMethods } from "../crypto/hash-password.js";
 import { JWT } from "../crypto/jwt.js";
-
+import { IPayload } from "../types/interfaces/payload.js";
 
 
 export class WorkerService {
@@ -35,8 +35,8 @@ export class WorkerService {
     async FindAllWorkers(skip: number, take: number) {
         return await this.workerModel.findMany({take: take,skip: skip ,omit: {password: true}, orderBy: {salary: "desc"}})
     }
-    async FindWorkerByEmail(email: string) { 
-        const worker = await this.workerModel.findFirst({omit: {password: true}, where:{email}})
+    async FindWorkerByEmail(email: string, omitPassword: boolean = true) { 
+        const worker = await this.workerModel.findFirst({omit: {password: omitPassword}, where:{email}, include: {schedulings: true}})
         if (!worker) {
             throw this.app.httpErrors.notFound(`worker with email ${email} wasn't found`)
         }
@@ -47,10 +47,7 @@ export class WorkerService {
         if (errors.length > 0) {
             throw this.app.httpErrors.badRequest(`errors: ${errors}`)
         }
-        const worker = await this.workerModel.findFirst({where:{email: body.email}})
-        if (!worker) {
-            throw this.app.httpErrors.notFound(`worker with email ${body.email} wasn't found`)
-        }
+        const worker = await this.FindWorkerByEmail(body.email, false)
         const isPasswordCorrect = await HashMethods.ComparePasswords(body.password, worker.password)
         if (isPasswordCorrect) {
             const jwt = JWT.SignJWT({id: worker.id, email: worker.email, role: worker.role, updatedAt: worker.updatedAt})
@@ -59,6 +56,26 @@ export class WorkerService {
             }
         } else {
             throw this.app.httpErrors.unauthorized("password is wrong")
+        }
+    }
+    async DeleteWorkerByEmail(email: string) {
+        await this.FindWorkerByEmail(email)
+        await this.workerModel.delete({where:{email}})
+        return {
+            message: "worker was deleted"
+        }
+    }
+    async UpdateWorkerByEmail(body: UpdateWorkerDTO, email: string) {
+        await this.FindWorkerByEmail(email)
+        const errors = await validate(plainToInstance(UpdateWorkerDTO, body))
+        if (errors.length > 0) {
+            throw this.app.httpErrors.badRequest(`errors: ${errors}`)
+        }
+
+
+        await this.workerModel.update({where:{email}, data: body})
+        return {
+            message: "worker was updated"
         }
     }
 }
