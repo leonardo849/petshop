@@ -19,6 +19,10 @@ export class WorkerService {
             throw this.app.httpErrors.badRequest(`errors: ${errors}`)
         }
         const passwordhashed = await HashMethods.HashPassword(body.password)
+        const workerSearched = await this.workerModel.findFirst({where:{email: body.email}})
+        if (workerSearched) {
+            throw this.app.httpErrors.conflict("there is already a worker with that email")
+        }
         const worker = await this.workerModel.create({data: {
                     email: body.email,
                     name: body.name,
@@ -29,7 +33,8 @@ export class WorkerService {
             }
         )
         return {
-            message: `worker was created. ID: ${worker.id}`
+            message: "worker was created",
+            id: worker.id
         }
     }
     async FindAllWorkers(skip: number, take: number) {
