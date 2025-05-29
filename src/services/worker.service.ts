@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { PrismaClient, Role} from "../../generated/client.js";
-import { CreateWorkerDTO, LoginWorkerDTO, UpdateWorkerDTO } from "../dto/worker.dto.js";
+import { LoginDTO } from "../dto/login.dto.js";
+import { CreateWorkerDTO, UpdateWorkerDTO } from "../dto/worker.dto.js";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { HashMethods } from "../crypto/hash-password.js";
@@ -47,8 +48,8 @@ export class WorkerService {
         }
         return worker
     }
-    async LoginWorker(body: LoginWorkerDTO) {
-        const errors = await validate(plainToInstance(LoginWorkerDTO, body))
+    async LoginWorker(body: LoginDTO) {
+        const errors = await validate(plainToInstance(LoginDTO, body))
         if (errors.length > 0) {
             throw this.app.httpErrors.badRequest(`errors: ${errors}`)
         }

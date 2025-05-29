@@ -21,13 +21,7 @@ export class CreateWorkerDTO {
     password!: string
 }
 
-export class LoginWorkerDTO  {
-    @IsEmail()
-    email!: string
 
-    @IsStrongPassword()
-    password!: string
-}
 
 export class UpdateWorkerDTO {
     @IsOptional()

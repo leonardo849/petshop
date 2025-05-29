@@ -9,4 +9,7 @@ export class CreateCustomerDTO {
 
     @IsEmail()
     email!: string 
+
+    @Length(10, 150)
+    address!: string
 }

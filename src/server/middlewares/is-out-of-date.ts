@@ -7,7 +7,7 @@ export async function isOutOfDate(request: FastifyRequest, reply: FastifyReply, 
     const {email} = request.params as {email: string}
     let updatedAt: Date|undefined
     const url = request.url
-    if (url.includes("/login")) {
+    if (url.includes("/login") || url.includes("/customer/create")) {
         return 
     }
     if (request.user.role === "CUSTOMER") {

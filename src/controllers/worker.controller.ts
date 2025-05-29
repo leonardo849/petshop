@@ -1,7 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { WorkerService } from "../services/worker.service.js";
 import { PrismaClient } from "../../generated/index.js";
-import { CreateWorkerDTO, LoginWorkerDTO, UpdateWorkerDTO } from "../dto/worker.dto.js";
+import { CreateWorkerDTO,  UpdateWorkerDTO } from "../dto/worker.dto.js";
+import { LoginDTO } from "../dto/login.dto.js";
 
 export class WorkerController {
     private workerService: WorkerService
@@ -27,7 +28,7 @@ export class WorkerController {
         }
     }
     async LoginWorker(request: FastifyRequest, reply: FastifyReply) {
-        const body = request.body as LoginWorkerDTO
+        const body = request.body as LoginDTO
         try {
             const jwt = await this.workerService.LoginWorker(body)
             return jwt

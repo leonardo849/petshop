@@ -4,13 +4,16 @@ import { WorkerRoutes } from "./routes/worker.routes.js"
 import { PrismaClient } from "../../generated/client.js";
 import { verifyJWT } from "./middlewares/verify-jwt.js";
 import { isOutOfDate } from "./middlewares/is-out-of-date.js";
+import { CostumerRoutes } from "./routes/customer.routes.js";
 
 
 export class Server {
     private prisma: PrismaClient = new PrismaClient()
     private workerRoutes: WorkerRoutes
+    private customerRoutes: CostumerRoutes
     constructor(private readonly app: FastifyInstance) {
         this.workerRoutes = new WorkerRoutes(app, this.prisma)
+        this.customerRoutes = new CostumerRoutes(app, this.prisma)
     }
     async RunServer(port: number) {
         try {
@@ -26,6 +29,7 @@ export class Server {
     }
     private SetupRoutes() {
         this.workerRoutes.SetupWorkerRoutes()
+        this.customerRoutes.SetupCustomerRoutes()
     }
     private SetErrorHandler() {
        this.app.setErrorHandler((error, request, reply) => {

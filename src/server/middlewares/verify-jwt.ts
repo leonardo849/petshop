@@ -4,7 +4,7 @@ import { IRequestWithUser } from "../../types/interfaces/request-with-user.js";
 
 export async function verifyJWT(request: FastifyRequest, reply: FastifyReply) {
     const url = request.url
-    if (url.includes("/login")) {
+    if (url.includes("/login") || url.includes("customer/create")) {
         return 
     }
 
