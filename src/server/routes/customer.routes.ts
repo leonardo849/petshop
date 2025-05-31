@@ -17,14 +17,14 @@ export class CostumerRoutes {
                 handler: this.customerController.FindAllCustomers.bind(this.customerController)
             })
             app.post("/login", this.customerController.LoginCustomer.bind(this.customerController))
-            // app.delete("/delete/:email", {
-            //     preHandler: isSameEmail,
-            //     handler: this.customerController.DeleteOneWorkerByEmail.bind(this.customerController)
-            // })
-            // app.put("/update/:email", {
-            //     preHandler: isSameEmail,
-            //     handler: this.customerController.UpdateOneWorkerByEmail.bind(this.customerController)
-            // })
+            app.delete("/delete/:email", {
+                preHandler: isSameEmail,
+                handler: this.customerController.DeleteOneCustomer.bind(this.customerController)
+            })
+            app.put("/update/:email", {
+                 preHandler: isSameEmail,
+                 handler: this.customerController.UpdateCustomer.bind(this.customerController)
+             })
             app.get("/one/:email", {
                 preHandler: isSameEmail,
                 handler: this.customerController.FindOneByEmail.bind(this.customerController)

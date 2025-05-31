@@ -1,7 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { WorkerService } from "../../services/worker.service.js";
 import { PrismaClient } from "../../../generated";
-import { CustomerService } from "../../services/customer.service.js";
+
 
 export async function isOutOfDate(request: FastifyRequest, reply: FastifyReply, app: FastifyInstance,  prisma: PrismaClient) {
     const {email} = request.params as {email: string}
@@ -11,14 +10,12 @@ export async function isOutOfDate(request: FastifyRequest, reply: FastifyReply, 
         return 
     }
     if (request.user.role === "CUSTOMER") {
-        const customerService = new CustomerService(app, prisma)
-        const customer = await customerService.FindOneCustomerByEmail(email)
+        const customer = await prisma.customer.findFirst({where:{email}})
         if (customer) {
             updatedAt = customer.updatedAt
         }
     } else {
-        const workerService = new WorkerService(app, prisma)
-        const worker = await workerService.FindWorkerByEmail(email)
+        const worker = await prisma.worker.findFirst({where:{email}})
         if (worker) {
             updatedAt = worker.updatedAt
         }

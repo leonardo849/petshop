@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { PrismaClient } from "../../generated";
-import { CreateCustomerDTO } from "../dto/customer.dto.js";
+import { CreateCustomerDTO, UpdateCustomerDTO } from "../dto/customer.dto.js";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import {HashMethods} from "../crypto/hash-password.js"
@@ -53,6 +53,27 @@ export class CustomerService {
             }
         } else {
             throw this.app.httpErrors.unauthorized("your login is wrong")
+        }
+    }
+    async UpdateCustomer(email: string, body: UpdateCustomerDTO) {
+        await this.FindOneCustomerByEmail(email)
+        await this.customerModel.update({where:{email}, data: body})
+        const errors = await validate(plainToInstance(UpdateCustomerDTO, body))
+        if (errors.length > 0) {
+            throw this.app.httpErrors.badRequest(`errors: ${errors}`)
+        }
+        return {
+            message: "customer was updated"
+        }
+    }
+    async FindAllCustomers(take: number, skip: number) {
+        return await this.customerModel.findMany({omit: {password: true}, take, skip})
+    }
+    async DeleteOneCustomer(email: string) {
+        await this.FindOneCustomerByEmail(email)
+        await this.customerModel.delete({where:{email}})
+        return {
+            message: "customer was deleted"
         }
     }
 }

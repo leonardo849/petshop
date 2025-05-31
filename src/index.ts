@@ -9,7 +9,7 @@ dotenv.config()
 
 
 const app = Fastify()
-await app.register(sensible)
+
 
 
 
