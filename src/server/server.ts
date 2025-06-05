@@ -5,18 +5,23 @@ import { PrismaClient } from "../../generated/client.js";
 import { verifyJWT } from "./middlewares/verify-jwt.js";
 import { isOutOfDate } from "./middlewares/is-out-of-date.js";
 import { CostumerRoutes } from "./routes/customer.routes.js";
-
+import sensible from "@fastify/sensible"
+import { PetRoutes } from "./routes/pet.routes.js";
+import { CustomerService } from "../services/customer.service.js";
 
 export class Server {
     private prisma: PrismaClient = new PrismaClient()
     private workerRoutes: WorkerRoutes
     private customerRoutes: CostumerRoutes
+    private petRoutes: PetRoutes
     constructor(private readonly app: FastifyInstance) {
         this.workerRoutes = new WorkerRoutes(app, this.prisma)
         this.customerRoutes = new CostumerRoutes(app, this.prisma)
+        this.petRoutes = new PetRoutes(app, this.prisma, new CustomerService(app, this.prisma))
     }
     async RunServer(port: number) {
         try {
+            await this.app.register(sensible)
             this.SetErrorHandler()
             this.SetupRoutes()
             this.SetupHooks()
@@ -30,9 +35,11 @@ export class Server {
     private SetupRoutes() {
         this.workerRoutes.SetupWorkerRoutes()
         this.customerRoutes.SetupCustomerRoutes()
+        this.petRoutes.SetupPetRoutes()
     }
     private SetErrorHandler() {
        this.app.setErrorHandler((error, request, reply) => {
+        console.log(error)
             if (error instanceof HttpError) {
                 reply.status(error.statusCode || 500).send({error: error.message || "internal server error"})
             } else {
@@ -45,8 +52,5 @@ export class Server {
             await verifyJWT(request, reply)
             await isOutOfDate(request, reply, this.app, this.prisma)
         })
-    }
-    GetApp() {
-        return this.app
     }
 }

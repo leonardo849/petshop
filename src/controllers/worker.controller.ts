@@ -13,7 +13,7 @@ export class WorkerController {
         const body = request.body as CreateWorkerDTO
         try {
             const message = await this.workerService.CreateWorker(body)
-            return message
+            return reply.status(201).send(message)
         } catch (error) {
             throw error
         }
@@ -22,7 +22,7 @@ export class WorkerController {
         const {take, skip} = request.params as {take: string, skip: number}
         try {
             const workers = await this.workerService.FindAllWorkers(Number(skip), Number(take))
-            return workers
+            return reply.status(200).send(workers)
         } catch (error) {
             throw error
         }
@@ -31,7 +31,7 @@ export class WorkerController {
         const body = request.body as LoginDTO
         try {
             const jwt = await this.workerService.LoginWorker(body)
-            return jwt
+            return reply.status(200).send(jwt)
         } catch (error) {
             throw error
         }
@@ -40,7 +40,7 @@ export class WorkerController {
         const {email}  = request.params as {email: string}
         try {
             const message = await this.workerService.DeleteWorkerByEmail(email)
-            return message
+            return  reply.status(200).send(message)
         } catch (error) {
             throw error
         }
@@ -50,7 +50,7 @@ export class WorkerController {
         const body = request.body as UpdateWorkerDTO
         try {
             const message = await this.workerService.UpdateWorkerByEmail(body, email)
-            return message
+            return reply.status(200).send(message)
         } catch (error) {
             throw error
         }
@@ -59,7 +59,7 @@ export class WorkerController {
         const {email}  = request.params as {email: string}
         try {
             const worker = await this.workerService.FindWorkerByEmail(email)
-            return worker
+            return reply.status(200).send(worker)
         } catch (error) {
             throw error
         }

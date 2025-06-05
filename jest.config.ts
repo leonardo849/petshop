@@ -4,13 +4,17 @@ import { compilerOptions } from './tsconfig.json';
 export default {
   preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
+  setupFiles: ["<rootDir>/tests/setup.ts"],
   extensionsToTreatAsEsm: ['.ts'],
-  globals: {
-    'ts-jest': {
+  setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.ts'],
+
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', {
       useESM: true,
-      tsconfig: './tsconfig.json'
-    }
+      tsconfig: './tsconfig.test.json'
+    }]
   },
+
   moduleNameMapper: pathsToModuleNameMapper(
     compilerOptions.paths || {},
     { prefix: '<rootDir>/' }

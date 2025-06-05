@@ -76,4 +76,11 @@ export class CustomerService {
             message: "customer was deleted"
         }
     }
+    async FindOneCustomerById(id: string) {
+        const customer = await this.customerModel.findFirst({where:{id}, omit: {password: true}})
+        if (!customer) {
+            throw this.app.httpErrors.notFound("customer wasn not found")
+        }
+        return customer
+    }
 }
