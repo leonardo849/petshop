@@ -1,0 +1,151 @@
+import { PrismaClient, Worker } from "../../generated"
+import { CreateWorkerDTO, UpdateWorkerDTO } from "../../src/dto/worker.dto"
+import {LoginDTO} from "../../src/dto/login.dto"
+import axios from "axios"
+import {HashMethods} from "../../src/crypto/hash-password"
+import {prisma} from "../setup"
+import {url} from "../setup"
+
+
+
+let token: string
+
+
+export class WorkerControllerTests {
+    static async CreateWorker(body: CreateWorkerDTO): Promise<{status: number, data: {message: string}}> {
+        try {
+            const response = await axios.post(`${url}/worker/create`, body, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            return {
+                status: response.status,
+                data: response.data
+            };
+        } catch (error: any) {
+            if (error.response) {
+                
+                return {
+                    status: error.response.status,
+                    data: {
+                        message: error.response.data?.message 
+                    }
+                };
+            }  else {
+                return {
+                    status: 500,
+                    data: {
+                        message: "error"
+                    }
+                };
+            }
+        }
+    }
+
+    static async LoginWorker(body: LoginDTO): Promise<{status: number, data: {token: string}}> {
+        const response = await axios.post(`${url}/worker/login`, body, { headers: { 'Content-Type': 'application/json' }})
+        return {status: response.status, data: {token: response.data.token}}
+    }
+    static async GetAllWorkers(): Promise<{status: number, data: Worker[]}> {
+        const response = await axios.get(`${url}/worker/all/0/5`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        })
+        return {status: response.status, data: response.data}
+    }
+    static async FindOneWorker(email:string): Promise<{status: number, data: Worker}> {
+        const response = await axios.get(`${url}/worker/one/${email}`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        })
+        return {status: response.status, data: response.data}
+    }
+    static async UpdateWorker(body: UpdateWorkerDTO, email: string): Promise<number> {
+        const response = await axios.put(`${url}/worker/update/${email}`, body, {
+            headers: {Authorization: `Bearer ${token}`}
+        })
+        return response.status
+    }
+    static async DeleteWorker(email: string): Promise<number> {
+        const response = await axios.delete(`${url}/worker/delete/${email}`,  {
+            headers: {Authorization: `Bearer ${token}`}
+        })
+        return response.status
+    }
+}
+
+
+
+export function generateString(length: number): string {
+    const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    let result = ' '
+    const charactersLength = characters.length
+    for ( let i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength))
+    }
+
+    return result
+}
+
+const workerEmail = "batman@gmail.com"
+
+
+describe("test workers", () => {
+    beforeAll(async () => {
+    const name = generateString(50)
+    const password = "x[+4[ZC8C8C4Hi"
+    const hash = await HashMethods.HashPassword(password)
+    const body: CreateWorkerDTO = {email: process.env.REALEMAILMANAGER as string, name: name, password: hash, role: "MANAGER", salary: 1500}
+    let manager = await prisma.worker.findFirst({where:{email: body.email}})
+    if (!manager) {
+        manager = await prisma.worker.create({data: body})
+        expect(manager).toMatchObject({email: body.email, name: body.name, role: "MANAGER"})
+      }
+
+      const { data } = await WorkerControllerTests.LoginWorker({email: manager.email, password: password})
+      token = data.token
+    })
+    it("get workers", async () => {
+        const {data} = await WorkerControllerTests.GetAllWorkers()
+        expect(Array.isArray(data)).toBe(true)
+    })
+    it("get one worker", async () => {
+        const hash = await HashMethods.HashPassword("f0C.2v(8/$e7")
+        const testWorker: CreateWorkerDTO = {
+            email: workerEmail,
+            name: generateString(40),
+            password: hash,
+            role: "SERVICEPROVIDER",
+            salary: 4900
+        }
+        const {status, data} = await WorkerControllerTests.CreateWorker(testWorker)
+        expect([201, 409]).toContain(status)
+        const res = await WorkerControllerTests.FindOneWorker(workerEmail)
+        expect(res.status).toBe(200)
+        expect(res.data.email).toBe(testWorker.email)
+    })
+    it("update worker", async () => {
+        const updateWorker: UpdateWorkerDTO = {
+            salary: 3000
+        }
+        const status = await WorkerControllerTests.UpdateWorker(updateWorker, workerEmail)
+        expect(status).toBe(200)
+    })
+    it("delete worker", async () => {
+        const workerDeletedEmail = "workerdeleted@gmail.com"
+        const hash = await HashMethods.HashPassword("f0C.2v(8/$e7")
+        const workerDeleted: CreateWorkerDTO = {
+            email: workerDeletedEmail,
+            name: "workerdeletedasideakdijksaidjai",
+            password: hash,
+            role: "VETERINARIAN",
+            salary: 9000
+        }
+        const res = await WorkerControllerTests.CreateWorker(workerDeleted)
+        expect([201, 409]).toContain(res.status)
+        const status = await WorkerControllerTests.DeleteWorker(workerDeleted.email)
+        expect(status).toBe(200)
+    })
+})

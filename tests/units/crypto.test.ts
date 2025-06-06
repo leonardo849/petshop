@@ -1,12 +1,9 @@
-import { IPayload } from "@src/types/interfaces/payload"
+import { IPayload } from "../../src/types/interfaces/payload"
 import {HashMethods} from "../../src/crypto/hash-password"
 import {JWT} from "../../src/crypto/jwt"
 import dotenv from "dotenv"
 
 describe("crypto", () => {
-    beforeAll(() => {
-        dotenv.config()
-    })
     it("generate and compare", async () => {
         const password = "batman"
         const hash = await HashMethods.HashPassword(password)
