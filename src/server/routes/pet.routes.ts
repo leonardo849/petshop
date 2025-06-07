@@ -13,6 +13,7 @@ export class PetRoutes {
     SetupPetRoutes() {
         this.app.register((app) => {
             app.post("/create", {
+                preHandler: isCustomer,
                 handler: this.petController.CreatePet.bind(this.petController)
             })
             app.get("/all/:skip/:take", {
