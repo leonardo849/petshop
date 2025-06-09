@@ -13,7 +13,7 @@ export class WorkerController {
         const body = request.body as CreateWorkerDTO
         try {
             const message = await this.workerService.CreateWorker(body)
-            return reply.status(201).send(message)
+            return message
         } catch (error) {
             throw error
         }

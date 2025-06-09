@@ -11,7 +11,7 @@ import {url} from "../setup"
 let token: string
 
 
-export class WorkerControllerTests {
+class WorkerControllerTests {
     static async CreateWorker(body: CreateWorkerDTO): Promise<{status: number, data: {message: string}}> {
         try {
             const response = await axios.post(`${url}/worker/create`, body, {
@@ -121,7 +121,7 @@ describe("test workers", () => {
             salary: 4900
         }
         const {status, data} = await WorkerControllerTests.CreateWorker(testWorker)
-        expect([201, 409]).toContain(status)
+        expect([200, 409]).toContain(status)
         const res = await WorkerControllerTests.FindOneWorker(workerEmail)
         expect(res.status).toBe(200)
         expect(res.data.email).toBe(testWorker.email)
@@ -144,7 +144,7 @@ describe("test workers", () => {
             salary: 9000
         }
         const res = await WorkerControllerTests.CreateWorker(workerDeleted)
-        expect([201, 409]).toContain(res.status)
+        expect([200, 409]).toContain(res.status)
         const status = await WorkerControllerTests.DeleteWorker(workerDeleted.email)
         expect(status).toBe(200)
     })

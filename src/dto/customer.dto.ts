@@ -21,5 +21,9 @@ export class UpdateCustomerDTO {
 
     @IsOptional()
     @Length(10, 150)
+    name?: string
+
+    @IsOptional()
+    @Length(10, 150)
     address?: string
 }
