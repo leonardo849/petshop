@@ -84,4 +84,11 @@ export class WorkerService {
             message: "worker was updated"
         }
     }
+    async FindWorkerById(id: string) {
+        const worker = await this.workerModel.findFirst({where:{id}, omit: {password: true}})
+        if (!worker) {
+            throw this.app.httpErrors.notFound("worker wasn't found")
+        }
+        return worker
+    }
 }

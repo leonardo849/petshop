@@ -37,4 +37,11 @@ export class PetService {
         const pets = await this.petModel.findMany({skip, take, where: {customerID: id}})
         return pets
     }
+    async FindOnePet(id: string) {
+        const pet = await this.petModel.findFirst({where:{id}})
+        if (!pet) {
+            throw this.app.httpErrors.notFound("pet not found")
+        }
+        return pet
+    }
 }

@@ -4141,6 +4141,7 @@ export namespace Prisma {
     description: string | null
     price: number | null
     createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type ServiceMaxAggregateOutputType = {
@@ -4149,6 +4150,7 @@ export namespace Prisma {
     description: string | null
     price: number | null
     createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type ServiceCountAggregateOutputType = {
@@ -4157,6 +4159,7 @@ export namespace Prisma {
     description: number
     price: number
     createdAt: number
+    updatedAt: number
     _all: number
   }
 
@@ -4175,6 +4178,7 @@ export namespace Prisma {
     description?: true
     price?: true
     createdAt?: true
+    updatedAt?: true
   }
 
   export type ServiceMaxAggregateInputType = {
@@ -4183,6 +4187,7 @@ export namespace Prisma {
     description?: true
     price?: true
     createdAt?: true
+    updatedAt?: true
   }
 
   export type ServiceCountAggregateInputType = {
@@ -4191,6 +4196,7 @@ export namespace Prisma {
     description?: true
     price?: true
     createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -4286,6 +4292,7 @@ export namespace Prisma {
     description: string
     price: number
     createdAt: Date
+    updatedAt: Date
     _count: ServiceCountAggregateOutputType | null
     _avg: ServiceAvgAggregateOutputType | null
     _sum: ServiceSumAggregateOutputType | null
@@ -4313,6 +4320,7 @@ export namespace Prisma {
     description?: boolean
     price?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     scheduling?: boolean | Service$schedulingArgs<ExtArgs>
     _count?: boolean | ServiceCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["service"]>
@@ -4323,6 +4331,7 @@ export namespace Prisma {
     description?: boolean
     price?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
   }, ExtArgs["result"]["service"]>
 
   export type ServiceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -4331,6 +4340,7 @@ export namespace Prisma {
     description?: boolean
     price?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
   }, ExtArgs["result"]["service"]>
 
   export type ServiceSelectScalar = {
@@ -4339,9 +4349,10 @@ export namespace Prisma {
     description?: boolean
     price?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type ServiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "price" | "createdAt", ExtArgs["result"]["service"]>
+  export type ServiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "price" | "createdAt" | "updatedAt", ExtArgs["result"]["service"]>
   export type ServiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     scheduling?: boolean | Service$schedulingArgs<ExtArgs>
     _count?: boolean | ServiceCountOutputTypeDefaultArgs<ExtArgs>
@@ -4360,6 +4371,7 @@ export namespace Prisma {
       description: string
       price: number
       createdAt: Date
+      updatedAt: Date
     }, ExtArgs["result"]["service"]>
     composites: {}
   }
@@ -4789,6 +4801,7 @@ export namespace Prisma {
     readonly description: FieldRef<"Service", 'String'>
     readonly price: FieldRef<"Service", 'Float'>
     readonly createdAt: FieldRef<"Service", 'DateTime'>
+    readonly updatedAt: FieldRef<"Service", 'DateTime'>
   }
     
 
@@ -11750,7 +11763,8 @@ export namespace Prisma {
     name: 'name',
     description: 'description',
     price: 'price',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type ServiceScalarFieldEnum = (typeof ServiceScalarFieldEnum)[keyof typeof ServiceScalarFieldEnum]
@@ -12082,6 +12096,7 @@ export namespace Prisma {
     description?: StringFilter<"Service"> | string
     price?: FloatFilter<"Service"> | number
     createdAt?: DateTimeFilter<"Service"> | Date | string
+    updatedAt?: DateTimeFilter<"Service"> | Date | string
     scheduling?: SchedulingListRelationFilter
   }
 
@@ -12091,6 +12106,7 @@ export namespace Prisma {
     description?: SortOrder
     price?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     scheduling?: SchedulingOrderByRelationAggregateInput
   }
 
@@ -12103,6 +12119,7 @@ export namespace Prisma {
     description?: StringFilter<"Service"> | string
     price?: FloatFilter<"Service"> | number
     createdAt?: DateTimeFilter<"Service"> | Date | string
+    updatedAt?: DateTimeFilter<"Service"> | Date | string
     scheduling?: SchedulingListRelationFilter
   }, "id">
 
@@ -12112,6 +12129,7 @@ export namespace Prisma {
     description?: SortOrder
     price?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: ServiceCountOrderByAggregateInput
     _avg?: ServiceAvgOrderByAggregateInput
     _max?: ServiceMaxOrderByAggregateInput
@@ -12128,6 +12146,7 @@ export namespace Prisma {
     description?: StringWithAggregatesFilter<"Service"> | string
     price?: FloatWithAggregatesFilter<"Service"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Service"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Service"> | Date | string
   }
 
   export type SchedulingWhereInput = {
@@ -12635,6 +12654,7 @@ export namespace Prisma {
     description: string
     price: number
     createdAt?: Date | string
+    updatedAt?: Date | string
     scheduling?: SchedulingCreateNestedManyWithoutServiceInput
   }
 
@@ -12644,6 +12664,7 @@ export namespace Prisma {
     description: string
     price: number
     createdAt?: Date | string
+    updatedAt?: Date | string
     scheduling?: SchedulingUncheckedCreateNestedManyWithoutServiceInput
   }
 
@@ -12653,6 +12674,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     scheduling?: SchedulingUpdateManyWithoutServiceNestedInput
   }
 
@@ -12662,6 +12684,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     scheduling?: SchedulingUncheckedUpdateManyWithoutServiceNestedInput
   }
 
@@ -12671,6 +12694,7 @@ export namespace Prisma {
     description: string
     price: number
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ServiceUpdateManyMutationInput = {
@@ -12679,6 +12703,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ServiceUncheckedUpdateManyInput = {
@@ -12687,6 +12712,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SchedulingCreateInput = {
@@ -13213,6 +13239,7 @@ export namespace Prisma {
     description?: SortOrder
     price?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type ServiceAvgOrderByAggregateInput = {
@@ -13225,6 +13252,7 @@ export namespace Prisma {
     description?: SortOrder
     price?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type ServiceMinOrderByAggregateInput = {
@@ -13233,6 +13261,7 @@ export namespace Prisma {
     description?: SortOrder
     price?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type ServiceSumOrderByAggregateInput = {
@@ -14345,6 +14374,7 @@ export namespace Prisma {
     description: string
     price: number
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ServiceUncheckedCreateWithoutSchedulingInput = {
@@ -14353,6 +14383,7 @@ export namespace Prisma {
     description: string
     price: number
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ServiceCreateOrConnectWithoutSchedulingInput = {
@@ -14430,6 +14461,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ServiceUncheckedUpdateWithoutSchedulingInput = {
@@ -14438,6 +14470,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WorkersOnSchedulingsUpsertWithWhereUniqueWithoutSchedulingInput = {

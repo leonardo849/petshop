@@ -1,0 +1,58 @@
+import { FastifyInstance } from "fastify";
+import { PrismaClient } from "../../generated/client.js";
+import { CreateSchedulingDTO } from "../dto/scheduling.dto.js";
+import { plainToInstance } from "class-transformer";
+import { validate } from "class-validator";
+import { WorkerService } from "./worker.service.js";
+import { ServiceService } from "./service.service.js";
+import { PetService } from "./pet.service.js";
+
+export class SchedulingService {
+    private schedulingModel
+    constructor(private readonly app: FastifyInstance, prisma: PrismaClient, private readonly workerService: WorkerService, 
+        private readonly serviceService: ServiceService, private readonly petService: PetService
+    ) {
+        this.schedulingModel = prisma.scheduling
+    }
+    async CreateScheduling(body: CreateSchedulingDTO) {
+        const errors = await validate(plainToInstance(CreateSchedulingDTO, body))
+        if (errors.length > 0) {
+            throw this.app.httpErrors.badRequest(`errors: ${errors}`)
+        }
+        for (let workerID of body.workersIds) {
+            await this.workerService.FindWorkerById(workerID)
+        }
+        await this.serviceService.FindOneService(body.serviceID)
+        await this.petService.FindOnePet(body.petID)
+        const scheduling = await this.schedulingModel.create({
+            data: {
+                date: new Date(body.date),
+                service: {
+                    connect: {id: body.serviceID}
+                },
+                pet: {
+                    connect: {id: body.petID}
+                },
+                status: "SCHEDULED",
+                workers: {
+                    create: body.workersIds.map(id => {
+                        return {worker: {connect: {id}}}
+                    })
+                }
+            },
+
+        })
+        return {
+            message: "scheduling was created",
+            id: scheduling.id
+        }
+    }
+    async FindAllSchedulings(skip: number, take: number) {
+        const schedulings = await this.schedulingModel.findMany({skip, take, include: {
+            pet: true,
+            service: true,
+            workers: true
+        }})
+        return schedulings
+    }
+}
