@@ -18,7 +18,7 @@ export class PetService {
         await this.customerService.FindOneCustomerById(id)
         const pet = await this.petModel.create({data: {
             name: body.name,
-            dateOfBirth: body.dateOfBirth,
+            dateOfBirth: new Date(body.dateOfBirth),
             race: body.race,
             species: body.species,
             weight: body.weight,

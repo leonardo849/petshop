@@ -1,4 +1,4 @@
-import { IsDate, IsDateString, IsNumber, IsString, IsUUID, Length } from "class-validator";
+import { IsDate, IsDateString, IsNumber, IsString, IsUUID, Length, Min } from "class-validator";
 
 export class CreatePetDTO {
     @Length(3, 30)
@@ -14,5 +14,6 @@ export class CreatePetDTO {
     dateOfBirth!: string
 
     @IsNumber()
+    @Min(0)
     weight!: number
 }
