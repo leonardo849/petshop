@@ -19,9 +19,8 @@ export class SchedulingService {
         if (errors.length > 0) {
             throw this.app.httpErrors.badRequest(`errors: ${errors}`)
         }
-        for (let workerID of body.workersIds) {
-            await this.workerService.FindWorkerById(workerID)
-        }
+        
+        await Promise.all(body.workersIds.map(id => this.workerService.FindWorkerById(id)))
         await this.serviceService.FindOneService(body.serviceID)
         await this.petService.FindOnePet(body.petID)
         const scheduling = await this.schedulingModel.create({

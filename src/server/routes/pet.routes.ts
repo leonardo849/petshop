@@ -24,6 +24,10 @@ export class PetRoutes {
                 preHandler: isCustomer,
                 handler: this.petController.FindMyPets.bind(this.petController)
             })
+            app.get("/one/:id", {
+                preHandler: isCustomer,
+                handler: this.petController.FindOnePet.bind(this.petController)
+            })
             // app.delete("/delete/:id", {
             //     preHandler: isSameEmail,
             //     handler: this.petController.DeleteOneCustomer.bind(this.petController)

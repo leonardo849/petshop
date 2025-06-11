@@ -13,22 +13,28 @@ let payload: IPayload
 let token: string
 
 export class PetControllerTests {
-    static async CreatePet(body: CreatePetDTO): Promise<number> {
-        const response = await axios.post(`${url}/pet/create`, body, {
-            headers: {Authorization: `Bearer ${token}`}
-        })
-
-        return response.status
-    }
-    static async FindAllPets(): Promise<Pet[]> {
-        const response = await axios.get(`${url}/pet/all/0/5`)
-        return response.data
+    static async CreatePet(body: CreatePetDTO): Promise<{status: number, data?: {message: string, id: string}}> {
+        try {
+            const response = await axios.post(`${url}/pet/create`, body, {
+            headers: {Authorization: `Bearer ${token}`}})
+            return {status: response.status, data: response.data}
+        }
+        catch(error: any) {
+            return {status: error.response.status, data: undefined}
+        }
+        
     }
     static async FindMyPets(): Promise<Pet[]> {
         const response = await axios.get(`${url}/pet/mypets/0/5`, {
             headers: {Authorization: `Bearer ${token}`}
         })
         return response.data
+    }
+    static async FindOnePet(id: string): Promise<{status: number, pet: Pet}> {
+        const response = await axios.get(`${url}/pet/one/${id}`, {
+            headers: {Authorization: `Bearer ${token}`}
+        })
+        return {status: response.status, pet: response.data}
     }
 }
 
@@ -61,15 +67,36 @@ describe("test pets", () => {
             race: "Equus asinus",
             weight: 50
         }
-        const status = await PetControllerTests.CreatePet(body)
+        const {status} = await PetControllerTests.CreatePet(body)
         expect(status).toBe(200)
     })
-    it("find all pets", async () => {
-        const pets = await PetControllerTests.FindAllPets()
-        expect(pets.length).toBeGreaterThan(0)
+    it("expect error", async () => {
+        const body: CreatePetDTO = {
+            dateOfBirth: "2023-05-03",
+            name: "beans",
+            species: "horse",
+            race: "Equus caballus",
+            weight: -1
+        }
+        const {status} = await PetControllerTests.CreatePet(body)
+        expect(status).toBe(400)
     })
     it("find my pets", async () => {
          const pets = await PetControllerTests.FindMyPets()
          expect(pets.length).toBeGreaterThan(0)
+    })
+    it("find one pet", async () => {
+        const body: CreatePetDTO = {
+            dateOfBirth: "2023-05-03",
+            name: "rice",
+            species: "horse",
+            race: "Equus caballus",
+            weight: 30
+        }
+        const {status, data} = await PetControllerTests.CreatePet(body)
+        expect(status).toBe(200)
+        const id = data?.id
+        const response = await PetControllerTests.FindOnePet(id as string)
+        expect(response.pet).toHaveProperty("name", body.name)
     })
 })

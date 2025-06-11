@@ -36,4 +36,13 @@ export class PetController {
             throw error
         }
     }
+    async FindOnePet(request: FastifyRequest, reply: FastifyReply) {
+        const {id} = request.params as {id: string}
+        try {
+            const pet = await this.petService.FindOnePet(id)
+            return pet
+        } catch (error) {
+            throw error
+        }
+    }
 }

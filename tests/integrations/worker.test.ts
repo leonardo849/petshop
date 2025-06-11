@@ -1,10 +1,11 @@
-import { PrismaClient, Worker } from "../../generated"
+import { Pet,  Worker } from "../../generated"
 import { CreateWorkerDTO, UpdateWorkerDTO } from "../../src/dto/worker.dto"
 import {LoginDTO} from "../../src/dto/login.dto"
 import axios from "axios"
 import {HashMethods} from "../../src/crypto/hash-password"
 import {prisma} from "../setup"
 import {url} from "../setup"
+
 
 
 
@@ -74,6 +75,12 @@ class WorkerControllerTests {
         })
         return response.status
     }
+    static async FindAllPets(): Promise<Pet[]> {
+        const response = await axios.get(`${url}/pet/all/0/5`, {
+            headers: {Authorization: `Bearer ${token}`}
+        })
+        return response.data
+    }
 }
 
 
@@ -106,6 +113,18 @@ describe("test workers", () => {
 
       const { data } = await WorkerControllerTests.LoginWorker({email: manager.email, password: password})
       token = data.token
+    })
+    it("create worker", async () => {
+        const password = "x[+4[ZC8C8C4Hi"
+        const body: CreateWorkerDTO = {
+            email: process.env.REALEMAILMANAGER as string,
+            name: generateString(20),
+            password: password,
+            role: "VETERINARIAN",
+            salary: 8000
+        }
+        const {status} = await WorkerControllerTests.CreateWorker(body)
+        expect([200, 409]).toContain(status)
     })
     it("get workers", async () => {
         const {data} = await WorkerControllerTests.GetAllWorkers()
@@ -147,5 +166,11 @@ describe("test workers", () => {
         expect([200, 409]).toContain(res.status)
         const status = await WorkerControllerTests.DeleteWorker(workerDeleted.email)
         expect(status).toBe(200)
+    })
+    it("find all pets", async () => {
+        const pets = await WorkerControllerTests.FindAllPets()
+        expect(pets.length).toBeGreaterThan(0)
+        expect(pets[0]).toHaveProperty("name")
+        expect(pets[0]).toHaveProperty("race")
     })
 })
