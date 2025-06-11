@@ -69,7 +69,7 @@ describe("test pets", () => {
         expect(pets.length).toBeGreaterThan(0)
     })
     it("find my pets", async () => {
-         const pets = await PetControllerTests.FindAllPets()
+         const pets = await PetControllerTests.FindMyPets()
          expect(pets.length).toBeGreaterThan(0)
     })
 })
