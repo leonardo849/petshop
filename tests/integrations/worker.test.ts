@@ -5,6 +5,8 @@ import axios from "axios"
 import {HashMethods} from "../../src/crypto/hash-password"
 import {prisma} from "../setup"
 import {url} from "../setup"
+import {CreateServiceDTO} from "../../src/dto/service.dto"
+import {CreateSchedulingDTO, UpdateSchedulingStatusDTO} from "../../src/dto/scheduling.dto"
 
 
 
@@ -81,6 +83,33 @@ class WorkerControllerTests {
         })
         return response.data
     }
+    static async CreateService(body: CreateServiceDTO): Promise<number> {
+        const response = await axios.post(`${url}/service/create`, body ,{
+            headers: {Authorization: `Bearer ${token}`}
+        })
+        return response.status
+    }
+    static async CreateScheduling(body: CreateSchedulingDTO): Promise<{status: number, data: {message: string, id: string}}> {
+        const response = await axios.post(`${url}/scheduling/create`, body, {
+            headers: {Authorization: `Bearer ${token}`}
+        })
+        return {
+            status: response.status,
+            data: response.data
+        }
+    }
+    static async FindOneScheduling(id: string): Promise<number> {
+        const response = await axios.post(`${url}/scheduling/one/${id}`, {
+            headers: {Authorization: `Bearer ${token}`}
+        })
+        return response.status
+    }
+    static async UpdateScheduling(id: string, body: UpdateSchedulingStatusDTO): Promise<number> {
+        const response = await axios.patch(`${url}/scheduling/update/${id}`, body ,{
+            headers: {Authorization: `Bearer ${token}`}
+        })
+        return response.status
+    }
 }
 
 
@@ -95,6 +124,8 @@ export function generateString(length: number): string {
 
     return result
 }
+
+
 
 const workerEmail = "batman@gmail.com"
 
@@ -172,5 +203,62 @@ describe("test workers", () => {
         expect(pets.length).toBeGreaterThan(0)
         expect(pets[0]).toHaveProperty("name")
         expect(pets[0]).toHaveProperty("race")
+    })
+    it("create one service", async () => {
+        const body: CreateServiceDTO = {
+            description: "workers are going to bathe your pet",
+            name: "bath",
+            price: 30
+        }
+        const status = await WorkerControllerTests.CreateService(body)
+        expect(status).toBe(200)
+    })
+    let idScheduling: string
+    // let service 
+    // let pet 
+    // let workers
+    it("create one scheduling", async () => {
+        const hash = await HashMethods.HashPassword("x[+4[ZC8C8C4Hi")
+        const customer = await prisma.customer.create({
+            data: {
+                email: `customer@gmail${new Date()}.com`,
+                address: generateString(30),
+                name: generateString(20),
+                password: hash
+            }
+        })
+        const service = await prisma.service.create({data: {description: generateString(20),name: generateString(10),price: 50}})
+        const pet = await prisma.pet.create({data: {name: "bob", dateOfBirth: new Date("2023-01-01"), race: "rotweiller", species: "dog", weight: 20, customer: {
+            connect: {
+                id: customer.id
+            }
+        }}})
+        const workers = await Promise.all([
+            prisma.worker.create({data: {email:  `worker1${Date.now()}@gmail.com`, name: generateString(30), password: hash, role: "SERVICEPROVIDER", salary: 2000}}),
+            prisma.worker.create({data: {email:  `worker2${Date.now()}@gmail.com`, name: generateString(30), password: hash, role: "SERVICEPROVIDER", salary: 2000}})
+            ]
+        )
+        
+        const body: CreateSchedulingDTO = {
+            date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+            petID: pet.id,
+            serviceID: service.id,
+            workersIds: workers.map(element => {
+                return element.id
+            })
+        }
+
+        const {status, data} = await WorkerControllerTests.CreateScheduling(body)
+        expect(status).toBe(200)
+        
+        idScheduling = data.id
+                
+    })
+    it("update one scheduling status", async () => {
+        const body: UpdateSchedulingStatusDTO = {
+            status: "CANCELED"
+        }
+        const status = await WorkerControllerTests.UpdateScheduling(idScheduling, body)
+        expect(status).toBe(200)
     })
 })

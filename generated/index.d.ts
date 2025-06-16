@@ -9664,39 +9664,63 @@ export namespace Prisma {
 
   export type AggregateSale = {
     _count: SaleCountAggregateOutputType | null
+    _avg: SaleAvgAggregateOutputType | null
+    _sum: SaleSumAggregateOutputType | null
     _min: SaleMinAggregateOutputType | null
     _max: SaleMaxAggregateOutputType | null
   }
 
+  export type SaleAvgAggregateOutputType = {
+    total: number | null
+  }
+
+  export type SaleSumAggregateOutputType = {
+    total: number | null
+  }
+
   export type SaleMinAggregateOutputType = {
     id: string | null
+    total: number | null
     createdAt: Date | null
   }
 
   export type SaleMaxAggregateOutputType = {
     id: string | null
+    total: number | null
     createdAt: Date | null
   }
 
   export type SaleCountAggregateOutputType = {
     id: number
+    total: number
     createdAt: number
     _all: number
   }
 
 
+  export type SaleAvgAggregateInputType = {
+    total?: true
+  }
+
+  export type SaleSumAggregateInputType = {
+    total?: true
+  }
+
   export type SaleMinAggregateInputType = {
     id?: true
+    total?: true
     createdAt?: true
   }
 
   export type SaleMaxAggregateInputType = {
     id?: true
+    total?: true
     createdAt?: true
   }
 
   export type SaleCountAggregateInputType = {
     id?: true
+    total?: true
     createdAt?: true
     _all?: true
   }
@@ -9739,6 +9763,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: SaleAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SaleSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: SaleMinAggregateInputType
@@ -9769,14 +9805,19 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: SaleCountAggregateInputType | true
+    _avg?: SaleAvgAggregateInputType
+    _sum?: SaleSumAggregateInputType
     _min?: SaleMinAggregateInputType
     _max?: SaleMaxAggregateInputType
   }
 
   export type SaleGroupByOutputType = {
     id: string
+    total: number
     createdAt: Date
     _count: SaleCountAggregateOutputType | null
+    _avg: SaleAvgAggregateOutputType | null
+    _sum: SaleSumAggregateOutputType | null
     _min: SaleMinAggregateOutputType | null
     _max: SaleMaxAggregateOutputType | null
   }
@@ -9797,6 +9838,7 @@ export namespace Prisma {
 
   export type SaleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    total?: boolean
     createdAt?: boolean
     products?: boolean | Sale$productsArgs<ExtArgs>
     _count?: boolean | SaleCountOutputTypeDefaultArgs<ExtArgs>
@@ -9804,20 +9846,23 @@ export namespace Prisma {
 
   export type SaleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    total?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["sale"]>
 
   export type SaleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    total?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["sale"]>
 
   export type SaleSelectScalar = {
     id?: boolean
+    total?: boolean
     createdAt?: boolean
   }
 
-  export type SaleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdAt", ExtArgs["result"]["sale"]>
+  export type SaleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "total" | "createdAt", ExtArgs["result"]["sale"]>
   export type SaleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     products?: boolean | Sale$productsArgs<ExtArgs>
     _count?: boolean | SaleCountOutputTypeDefaultArgs<ExtArgs>
@@ -9832,6 +9877,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      total: number
       createdAt: Date
     }, ExtArgs["result"]["sale"]>
     composites: {}
@@ -10258,6 +10304,7 @@ export namespace Prisma {
    */
   interface SaleFieldRefs {
     readonly id: FieldRef<"Sale", 'String'>
+    readonly total: FieldRef<"Sale", 'Int'>
     readonly createdAt: FieldRef<"Sale", 'DateTime'>
   }
     
@@ -10477,7 +10524,7 @@ export namespace Prisma {
     /**
      * The data needed to create a Sale.
      */
-    data?: XOR<SaleCreateInput, SaleUncheckedCreateInput>
+    data: XOR<SaleCreateInput, SaleUncheckedCreateInput>
   }
 
   /**
@@ -11820,6 +11867,7 @@ export namespace Prisma {
 
   export const SaleScalarFieldEnum: {
     id: 'id',
+    total: 'total',
     createdAt: 'createdAt'
   };
 
@@ -12408,12 +12456,14 @@ export namespace Prisma {
     OR?: SaleWhereInput[]
     NOT?: SaleWhereInput | SaleWhereInput[]
     id?: StringFilter<"Sale"> | string
+    total?: IntFilter<"Sale"> | number
     createdAt?: DateTimeFilter<"Sale"> | Date | string
     products?: ProductsOnSaleListRelationFilter
   }
 
   export type SaleOrderByWithRelationInput = {
     id?: SortOrder
+    total?: SortOrder
     createdAt?: SortOrder
     products?: ProductsOnSaleOrderByRelationAggregateInput
   }
@@ -12423,16 +12473,20 @@ export namespace Prisma {
     AND?: SaleWhereInput | SaleWhereInput[]
     OR?: SaleWhereInput[]
     NOT?: SaleWhereInput | SaleWhereInput[]
+    total?: IntFilter<"Sale"> | number
     createdAt?: DateTimeFilter<"Sale"> | Date | string
     products?: ProductsOnSaleListRelationFilter
   }, "id">
 
   export type SaleOrderByWithAggregationInput = {
     id?: SortOrder
+    total?: SortOrder
     createdAt?: SortOrder
     _count?: SaleCountOrderByAggregateInput
+    _avg?: SaleAvgOrderByAggregateInput
     _max?: SaleMaxOrderByAggregateInput
     _min?: SaleMinOrderByAggregateInput
+    _sum?: SaleSumOrderByAggregateInput
   }
 
   export type SaleScalarWhereWithAggregatesInput = {
@@ -12440,6 +12494,7 @@ export namespace Prisma {
     OR?: SaleScalarWhereWithAggregatesInput[]
     NOT?: SaleScalarWhereWithAggregatesInput | SaleScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Sale"> | string
+    total?: IntWithAggregatesFilter<"Sale"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Sale"> | Date | string
   }
 
@@ -12978,40 +13033,47 @@ export namespace Prisma {
 
   export type SaleCreateInput = {
     id?: string
+    total: number
     createdAt?: Date | string
     products?: ProductsOnSaleCreateNestedManyWithoutSaleInput
   }
 
   export type SaleUncheckedCreateInput = {
     id?: string
+    total: number
     createdAt?: Date | string
     products?: ProductsOnSaleUncheckedCreateNestedManyWithoutSaleInput
   }
 
   export type SaleUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    total?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductsOnSaleUpdateManyWithoutSaleNestedInput
   }
 
   export type SaleUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    total?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductsOnSaleUncheckedUpdateManyWithoutSaleNestedInput
   }
 
   export type SaleCreateManyInput = {
     id?: string
+    total: number
     createdAt?: Date | string
   }
 
   export type SaleUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    total?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SaleUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    total?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -13502,17 +13564,28 @@ export namespace Prisma {
 
   export type SaleCountOrderByAggregateInput = {
     id?: SortOrder
+    total?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type SaleAvgOrderByAggregateInput = {
+    total?: SortOrder
   }
 
   export type SaleMaxOrderByAggregateInput = {
     id?: SortOrder
+    total?: SortOrder
     createdAt?: SortOrder
   }
 
   export type SaleMinOrderByAggregateInput = {
     id?: SortOrder
+    total?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type SaleSumOrderByAggregateInput = {
+    total?: SortOrder
   }
 
   export type ProductScalarRelationFilter = {
@@ -14750,11 +14823,13 @@ export namespace Prisma {
 
   export type SaleCreateWithoutProductsInput = {
     id?: string
+    total: number
     createdAt?: Date | string
   }
 
   export type SaleUncheckedCreateWithoutProductsInput = {
     id?: string
+    total: number
     createdAt?: Date | string
   }
 
@@ -14807,11 +14882,13 @@ export namespace Prisma {
 
   export type SaleUpdateWithoutProductsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    total?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SaleUncheckedUpdateWithoutProductsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    total?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

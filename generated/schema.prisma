@@ -97,6 +97,7 @@ model Product {
 model Sale {
   id        String           @id @default(uuid())
   products  ProductsOnSale[]
+  total     Int
   createdAt DateTime         @default(now())
 }
 

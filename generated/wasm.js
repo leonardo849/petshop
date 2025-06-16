@@ -189,6 +189,7 @@ exports.Prisma.ProductScalarFieldEnum = {
 
 exports.Prisma.SaleScalarFieldEnum = {
   id: 'id',
+  total: 'total',
   createdAt: 'createdAt'
 };
 

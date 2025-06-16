@@ -1,13 +1,13 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import {PrismaClient} from "../../generated"
 import { PetService } from "../services/pet.service.js";
-import { CustomerService } from "@src/services/customer.service";
+import { CustomerService } from "../services/customer.service.js";
 import { CreatePetDTO } from "../dto/pet.dto.js";
 
 export class PetController {
     private petService: PetService
-    constructor(app: FastifyInstance ,prisma: PrismaClient, customerService: CustomerService) {
-        this.petService = new PetService(prisma, app, customerService)
+    constructor(app: FastifyInstance ,prisma: PrismaClient) {
+        this.petService = new PetService(prisma, app, new CustomerService(app, prisma))
     }
     async CreatePet(request: FastifyRequest, reply: FastifyReply) {
         const body = request.body as CreatePetDTO
@@ -44,5 +44,14 @@ export class PetController {
         } catch (error) {
             throw error
         }
+    }
+    async DeletePet(request: FastifyRequest, reply: FastifyReply) {
+        const {id} = request.params as {id: string}
+        try {
+            const message = await this.petService.DeletePet(id, request.user.id)
+            return message
+        } catch (error) {
+            throw error
+        }        
     }
 }

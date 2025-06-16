@@ -19,6 +19,14 @@ export class SchedulingRoutes {
                 preHandler: isWorker,
                 handler: this.schedulingController.FindAllSchedulings.bind(this.schedulingController)
             })
+            app.get("/one/:id", {
+                preHandler: isWorker,
+                handler: this.schedulingController.FindOneScheduling.bind(this.schedulingController)
+            })
+            app.patch("/update/:id", {
+                preHandler: isWorker,
+                handler: this.schedulingController.UpdateOneScheduling.bind(this.schedulingController)
+            })
         }, {prefix: "scheduling"})
 
         console.log("scheduling's routes are ready")

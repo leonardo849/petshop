@@ -7,8 +7,8 @@ import { isCustomer } from "../middlewares/is-customer.js"
 
 export class PetRoutes {
     private petController: PetController
-    constructor(private readonly app: FastifyInstance, prisma: PrismaClient, customerService: CustomerService) {
-        this.petController = new PetController(app, prisma, customerService)
+    constructor(private readonly app: FastifyInstance, prisma: PrismaClient) {
+        this.petController = new PetController(app, prisma)
     }
     SetupPetRoutes() {
         this.app.register((app) => {
@@ -28,10 +28,10 @@ export class PetRoutes {
                 preHandler: isCustomer,
                 handler: this.petController.FindOnePet.bind(this.petController)
             })
-            // app.delete("/delete/:id", {
-            //     preHandler: isSameEmail,
-            //     handler: this.petController.DeleteOneCustomer.bind(this.petController)
-            // })
+            app.delete("/delete/:id", {
+                preHandler: isCustomer,
+                handler: this.petController.DeletePet.bind(this.petController)
+            })
         }, {prefix: "pet"})
         console.log(`pet's routes are running!`)
     }

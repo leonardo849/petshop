@@ -5,7 +5,7 @@ import { WorkerService } from "../services/worker.service.js";
 import { ServiceService } from "../services/service.service.js";
 import { PetService } from "../services/pet.service.js";
 import { CustomerService } from "../services/customer.service.js";
-import { CreateSchedulingDTO } from "../dto/scheduling.dto";
+import { CreateSchedulingDTO, UpdateSchedulingStatusDTO } from "../dto/scheduling.dto";
 
 export class SchedulingController {
     private schedulingService: SchedulingService
@@ -26,6 +26,25 @@ export class SchedulingController {
         try {
             const schedulings = await this.schedulingService.FindAllSchedulings(Number(skip), Number(take))
             return schedulings
+        } catch (error) {
+            throw error
+        }
+    }
+    async FindOneScheduling(request: FastifyRequest, reply: FastifyReply) {
+        const {id} = request.params as {id: string}
+        try {
+            const scheduling = await this.schedulingService.FindOneSchedulingById(id)
+            return scheduling
+        } catch (error) {
+            throw error
+        }
+    }
+    async UpdateOneScheduling(request: FastifyRequest, reply: FastifyReply) {
+        const {id} = request.params as {id: string}
+        const body = request.body as UpdateSchedulingStatusDTO
+        try {
+            const message = await this.schedulingService.UpdateSchedulingStatus(body, id)
+            return message
         } catch (error) {
             throw error
         }

@@ -36,6 +36,12 @@ export class PetControllerTests {
         })
         return {status: response.status, pet: response.data}
     }
+    static async DeletePet(id: string): Promise<number> {
+        const response = await axios.delete(`${url}/pet/delete/${id}`, {
+            headers: {Authorization: `Bearer ${token}`}
+        })
+        return response.status
+    }
 }
 
 
@@ -84,6 +90,20 @@ describe("test pets", () => {
     it("find my pets", async () => {
          const pets = await PetControllerTests.FindMyPets()
          expect(pets.length).toBeGreaterThan(0)
+    })
+    it("delete pet", async () => {
+        const body: CreatePetDTO = {
+            dateOfBirth: "2025-05-05",
+            name: "batman",
+            species: "donkey",
+            race: "Equus asinus",
+            weight: 50
+        }
+        const {status, data} =  await PetControllerTests.CreatePet(body)
+        expect(status).toBe(200)
+        const id = data?.id as string
+        const statusDeleted = await PetControllerTests.DeletePet(id)
+        expect(statusDeleted).toBe(200)
     })
     it("find one pet", async () => {
         const body: CreatePetDTO = {

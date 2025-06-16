@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { PrismaClient } from "../../generated/client.js";
-import { CreateSchedulingDTO } from "../dto/scheduling.dto.js";
+import { CreateSchedulingDTO, UpdateSchedulingStatusDTO } from "../dto/scheduling.dto.js";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { WorkerService } from "./worker.service.js";
@@ -39,7 +39,6 @@ export class SchedulingService {
                     })
                 }
             },
-
         })
         return {
             message: "scheduling was created",
@@ -53,5 +52,23 @@ export class SchedulingService {
             workers: true
         }})
         return schedulings
+    }
+    async FindOneSchedulingById(id: string) {
+        const scheduling =  await this.schedulingModel.findFirst({where:{id}, include: {
+            pet: true,
+            service: true,
+            workers: true
+        }})
+        if (!scheduling) {
+            throw this.app.httpErrors.notFound("scheduling was not found")
+        }
+        return scheduling
+    }
+    async UpdateSchedulingStatus(body: UpdateSchedulingStatusDTO, id: string) {
+        await this.FindOneSchedulingById(id)
+        await this.schedulingModel.update({where:{id}, data: {status: body.status}})
+        return {
+            message: "scheduling status was updated"
+        }
     }
 }

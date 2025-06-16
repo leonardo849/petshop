@@ -10,6 +10,7 @@ import { PetRoutes } from "./routes/pet.routes.js";
 import { CustomerService } from "../services/customer.service.js";
 import { SchedulingRoutes } from "./routes/scheduling.routes.js";
 import { ServiceRoutes } from "./routes/service.routes.js";
+import { ProductRoutes } from "./routes/product.routes.js";
 
 export class Server {
     private prisma: PrismaClient = new PrismaClient()
@@ -18,12 +19,14 @@ export class Server {
     private petRoutes: PetRoutes
     private schedulingRoutes: SchedulingRoutes
     private serviceRoutes: ServiceRoutes
+    private productRoutes: ProductRoutes
     constructor(private readonly app: FastifyInstance) {
         this.workerRoutes = new WorkerRoutes(app, this.prisma)
         this.customerRoutes = new CostumerRoutes(app, this.prisma)
-        this.petRoutes = new PetRoutes(app, this.prisma, new CustomerService(app, this.prisma))
+        this.petRoutes = new PetRoutes(app, this.prisma)
         this.schedulingRoutes = new SchedulingRoutes(app, this.prisma)
         this.serviceRoutes = new ServiceRoutes(app, this.prisma)
+        this.productRoutes = new ProductRoutes(app, this.prisma)
     }
     async RunServer(port: number) {
         try {
@@ -44,6 +47,7 @@ export class Server {
         this.petRoutes.SetupPetRoutes()
         this.schedulingRoutes.SetupSchedulingRoutes()
         this.serviceRoutes.SetupServiceRoutes()
+
     }
     private SetErrorHandler() {
        this.app.setErrorHandler((error, request, reply) => {

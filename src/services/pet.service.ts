@@ -44,4 +44,11 @@ export class PetService {
         }
         return pet
     }
+    async DeletePet(id: string, customerID: string) {
+        const pet = await this.FindOnePet(id)
+        if (pet.customerID !== customerID) {
+            throw this.app.httpErrors.forbidden("you can't delete the another customer's pet")
+        }
+        await this.petModel.delete({where:{id}})
+    }
 }

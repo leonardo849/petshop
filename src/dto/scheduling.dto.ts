@@ -1,4 +1,5 @@
 import { IsArray, IsDateString, IsEnum, IsUUID } from "class-validator";
+import { Status } from "../../generated/client.js";
 
 
 export class CreateSchedulingDTO {
@@ -13,4 +14,9 @@ export class CreateSchedulingDTO {
 
     @IsUUID(4, {each: true})
     workersIds!: string[]
+}
+
+export class UpdateSchedulingStatusDTO {
+    @IsEnum(Status)
+    status!: Status
 }
