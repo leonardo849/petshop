@@ -14,6 +14,24 @@ export class ProductRoutes {
                 preHandler: isManager,
                 handler: this.productController.CreateProduct.bind(this.productController)
             })
+            app.get("/all/:skip/:take", {
+                handler: this.productController.FindAllProducts.bind(this.productController)
+            })
+            app.get("/one/:id", {
+                handler: this.productController.FindOneProduct.bind(this.productController)
+            })
+            app.patch("/update/quantity/:id", {
+                preHandler: isManager,
+                handler: this.productController.UpdateOneProductQuantity.bind(this.productController)
+            })
+            app.put("/update/:id", {
+                preHandler: isManager,
+                handler: this.productController.UpdateProduct.bind(this.productController)
+            })
+            app.delete("/delete/:id", {
+                preHandler: isManager,
+                handler: this.productController.DeleteProduct.bind(this.productController)
+            })
         }, {prefix: "product"})
         console.log("product's routes are working!")
     }

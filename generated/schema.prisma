@@ -15,14 +15,15 @@ datasource db {
 }
 
 model Customer {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   name      String
-  email     String   @unique
+  email     String     @unique
   address   String
   password  String
+  purchases Purchase[]
   pets      Pet[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 model Pet {
@@ -70,6 +71,7 @@ model Worker {
   salary      Float
   password    String
   schedulings WorkersOnSchedulings[]
+  sales       Purchase[]
   createdAt   DateTime               @default(now())
   updatedAt   DateTime               @updatedAt
 }
@@ -84,30 +86,34 @@ model WorkersOnSchedulings {
 }
 
 model Product {
-  id          String           @id @default(uuid())
+  id          String               @id @default(uuid())
   name        String
   description String
   price       Float
   quantity    Int
-  sales       ProductsOnSale[]
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  purchases   ProductsOnPurchase[]
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
 }
 
-model Sale {
-  id        String           @id @default(uuid())
-  products  ProductsOnSale[]
-  total     Int
-  createdAt DateTime         @default(now())
+model Purchase {
+  id         String               @id @default(uuid())
+  products   ProductsOnPurchase[]
+  customer   Customer             @relation(fields: [customerID], references: [id])
+  customerID String
+  worker     Worker               @relation(fields: [workerID], references: [id])
+  workerID   String
+  total      Float
+  createdAt  DateTime             @default(now())
 }
 
-model ProductsOnSale {
-  product   Product @relation(fields: [productID], references: [id])
-  productID String
-  sale      Sale    @relation(fields: [saleID], references: [id])
-  saleID    String
+model ProductsOnPurchase {
+  product    Product  @relation(fields: [productID], references: [id])
+  productID  String
+  purchase   Purchase @relation(fields: [purchaseID], references: [id])
+  purchaseID String
 
-  @@id([productID, saleID])
+  @@id([productID, purchaseID])
 }
 
 enum Role {

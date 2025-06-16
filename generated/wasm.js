@@ -187,15 +187,17 @@ exports.Prisma.ProductScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.SaleScalarFieldEnum = {
+exports.Prisma.PurchaseScalarFieldEnum = {
   id: 'id',
+  customerID: 'customerID',
+  workerID: 'workerID',
   total: 'total',
   createdAt: 'createdAt'
 };
 
-exports.Prisma.ProductsOnSaleScalarFieldEnum = {
+exports.Prisma.ProductsOnPurchaseScalarFieldEnum = {
   productID: 'productID',
-  saleID: 'saleID'
+  purchaseID: 'purchaseID'
 };
 
 exports.Prisma.SortOrder = {
@@ -228,8 +230,8 @@ exports.Prisma.ModelName = {
   Worker: 'Worker',
   WorkersOnSchedulings: 'WorkersOnSchedulings',
   Product: 'Product',
-  Sale: 'Sale',
-  ProductsOnSale: 'ProductsOnSale'
+  Purchase: 'Purchase',
+  ProductsOnPurchase: 'ProductsOnPurchase'
 };
 
 /**

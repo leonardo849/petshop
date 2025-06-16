@@ -7,10 +7,10 @@ import { isOutOfDate } from "./middlewares/is-out-of-date.js";
 import { CostumerRoutes } from "./routes/customer.routes.js";
 import sensible from "@fastify/sensible"
 import { PetRoutes } from "./routes/pet.routes.js";
-import { CustomerService } from "../services/customer.service.js";
 import { SchedulingRoutes } from "./routes/scheduling.routes.js";
 import { ServiceRoutes } from "./routes/service.routes.js";
 import { ProductRoutes } from "./routes/product.routes.js";
+import { checkException } from "./middlewares/check-exception.js";
 
 export class Server {
     private prisma: PrismaClient = new PrismaClient()
@@ -47,6 +47,7 @@ export class Server {
         this.petRoutes.SetupPetRoutes()
         this.schedulingRoutes.SetupSchedulingRoutes()
         this.serviceRoutes.SetupServiceRoutes()
+        this.productRoutes.SetupProductsRoutes()
 
     }
     private SetErrorHandler() {
@@ -61,6 +62,9 @@ export class Server {
     }
     private  SetupHooks() {
         this.app.addHook("onRequest", async (request, reply) => {
+            if (checkException(request)) {
+                return
+            }
             await verifyJWT(request, reply)
             await isOutOfDate(request, reply, this.app, this.prisma)
         })
