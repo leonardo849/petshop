@@ -15,8 +15,12 @@ export class PetService {
         if (errors.length > 0) {
             throw this.app.httpErrors.badRequest(`errors: ${errors}`)
         }
-        await this.customerService.FindOneCustomerById(id)
-        const pet = await this.petModel.create({data: {
+        const customer = await this.customerService.FindOneCustomerById(id)
+        let pet = await this.petModel.findFirst({where:{customerID: customer.id, name: body.name}})
+        if (pet) {
+            throw this.app.httpErrors.conflict(`you have already a pet with that name`)
+        }
+        pet = await this.petModel.create({data: {
             name: body.name,
             dateOfBirth: new Date(body.dateOfBirth),
             race: body.race,

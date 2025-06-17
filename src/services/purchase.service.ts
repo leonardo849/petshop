@@ -4,6 +4,7 @@ import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { FastifyInstance } from "fastify";
 import { ProductService } from "./product.service.js";
+import {isThereDuplicate} from "../helpers/check-duplicate.js"
 
 
 export class PurchaseService {
@@ -17,13 +18,17 @@ export class PurchaseService {
         if (errors.length > 0) {
             throw this.app.httpErrors.badRequest(`errors: ${errors}`)
         }
+        if (isThereDuplicate(body.products, (element) => element.productID)) {
+            throw this.app.httpErrors.badRequest("same products cannot be shipped in different objects")
+        }
         const products = await Promise.all(body.products.map(element => this.productService.FindOneProduct(element.productID)))
-        products.forEach(productInDB => {
+        for (let productInDB of products) {
             const foundProduct = body.products.find(element => element.productID === productInDB.id)
             if (foundProduct) {
+                this.productService.AddProductQuantity(productInDB.id, {quantity: -foundProduct.quantity})
                 total += productInDB.price *  foundProduct.quantity
             }
-        })
+        }
         const productsIds = products.map(element => element.id)
 
         const purchase = await this.purchaseModel.create({

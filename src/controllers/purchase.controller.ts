@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { PrismaClient } from "../../generated";
-import { PurchaseService } from "../services/purchase.service";
-import { ProductService } from "../services/product.service";
-import { CreatePurchaseDTO } from "../dto/purchase.dto";
+import { PurchaseService } from "../services/purchase.service.js";
+import { ProductService } from "../services/product.service.js";
+import { CreatePurchaseDTO } from "../dto/purchase.dto.js";
 
 export class PurchaseController {
     private purchaseService: PurchaseService

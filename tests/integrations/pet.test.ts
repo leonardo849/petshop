@@ -6,7 +6,7 @@ import { CustomerControllerTests } from "./customer.test"
 import { generateString } from "./worker.test"
 import {CreatePetDTO} from "../../src/dto/pet.dto"
 import axios from "axios"
-import { url } from "../setup"
+import { prisma, url } from "../setup"
 import { Pet } from "../../generated"
 
 let payload: IPayload
@@ -68,13 +68,13 @@ describe("test pets", () => {
     it("create pet", async () => {
         const body: CreatePetDTO = {
             dateOfBirth: "2025-05-05",
-            name: "batman",
+            name: "BATMAN",
             species: "donkey",
             race: "Equus asinus",
             weight: 50
         }
         const {status} = await PetControllerTests.CreatePet(body)
-        expect(status).toBe(200)
+        expect([409, 200]).toContain(status)
     })
     it("expect error", async () => {
         const body: CreatePetDTO = {
@@ -94,7 +94,7 @@ describe("test pets", () => {
     it("delete pet", async () => {
         const body: CreatePetDTO = {
             dateOfBirth: "2025-05-05",
-            name: "batman",
+            name: generateString(13).toUpperCase(),
             species: "donkey",
             race: "Equus asinus",
             weight: 50
@@ -105,18 +105,24 @@ describe("test pets", () => {
         const statusDeleted = await PetControllerTests.DeletePet(id)
         expect(statusDeleted).toBe(200)
     })
+    const petNameForFindOne = generateString(15).toUpperCase()
     it("find one pet", async () => {
         const body: CreatePetDTO = {
             dateOfBirth: "2023-05-03",
-            name: "rice",
+            name: petNameForFindOne,
             species: "horse",
             race: "Equus caballus",
             weight: 30
         }
         const {status, data} = await PetControllerTests.CreatePet(body)
-        expect(status).toBe(200)
-        const id = data?.id
+        expect([409, 200]).toContain(status)
+        
+        const id = data?.id 
         const response = await PetControllerTests.FindOnePet(id as string)
         expect(response.pet).toHaveProperty("name", body.name)
+        
+    })
+    afterAll(async () => {
+        await prisma.pet.deleteMany({where:{name: petNameForFindOne}})
     })
 })

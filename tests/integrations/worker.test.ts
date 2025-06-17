@@ -218,21 +218,33 @@ describe("test workers", () => {
     // let pet 
     // let workers
     it("create one scheduling", async () => {
+        const email = "customerscheduling@gmail.com"
         const hash = await HashMethods.HashPassword("x[+4[ZC8C8C4Hi")
-        const customer = await prisma.customer.create({
+        let customer = await prisma.customer.findFirst({where:{email}})
+        if (!customer) {
+            customer = await prisma.customer.create({
             data: {
-                email: `customer@gmail${new Date()}.com`,
+                email: email,
                 address: generateString(30),
                 name: generateString(20),
                 password: hash
             }
         })
-        const service = await prisma.service.create({data: {description: generateString(20),name: generateString(10),price: 50}})
-        const pet = await prisma.pet.create({data: {name: "bob", dateOfBirth: new Date("2023-01-01"), race: "rotweiller", species: "dog", weight: 20, customer: {
+        } 
+        let service = await prisma.service.findFirst({where:{name: "GROOMING"}})
+        if (!service) {
+            service = await prisma.service.create({data: {description: generateString(20),name: "GROMMING",price: 50}})
+        }
+        
+        let pet = await prisma.pet.findFirst({where:{name: "bob", customerID: customer.id}})
+        if (!pet) {
+            pet = await prisma.pet.create({data: {name: "bob", dateOfBirth: new Date("2023-01-01"), race: "rotweiller", species: "dog", weight: 20, customer: {
             connect: {
                 id: customer.id
             }
-        }}})
+         }}})
+        }
+
         const workers = await Promise.all([
             prisma.worker.create({data: {email:  `worker1${Date.now()}@gmail.com`, name: generateString(30), password: hash, role: "SERVICEPROVIDER", salary: 2000}}),
             prisma.worker.create({data: {email:  `worker2${Date.now()}@gmail.com`, name: generateString(30), password: hash, role: "SERVICEPROVIDER", salary: 2000}})
