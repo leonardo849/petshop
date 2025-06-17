@@ -77,7 +77,7 @@ export class CustomerService {
         }
     }
     async FindOneCustomerById(id: string) {
-        const customer = await this.customerModel.findFirst({where:{id}, omit: {password: true}})
+        const customer = await this.customerModel.findFirst({where:{id}, omit: {password: true}, include: {purchases: true, pets: true}})
         if (!customer) {
             throw this.app.httpErrors.notFound("customer wasn not found")
         }

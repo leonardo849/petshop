@@ -11,6 +11,7 @@ import { SchedulingRoutes } from "./routes/scheduling.routes.js";
 import { ServiceRoutes } from "./routes/service.routes.js";
 import { ProductRoutes } from "./routes/product.routes.js";
 import { checkException } from "./middlewares/check-exception.js";
+import { PurchaseRoutes } from "./routes/purchase.routes.js";
 
 export class Server {
     private prisma: PrismaClient = new PrismaClient()
@@ -20,6 +21,7 @@ export class Server {
     private schedulingRoutes: SchedulingRoutes
     private serviceRoutes: ServiceRoutes
     private productRoutes: ProductRoutes
+    private purchaseRoutes: PurchaseRoutes
     constructor(private readonly app: FastifyInstance) {
         this.workerRoutes = new WorkerRoutes(app, this.prisma)
         this.customerRoutes = new CostumerRoutes(app, this.prisma)
@@ -27,6 +29,7 @@ export class Server {
         this.schedulingRoutes = new SchedulingRoutes(app, this.prisma)
         this.serviceRoutes = new ServiceRoutes(app, this.prisma)
         this.productRoutes = new ProductRoutes(app, this.prisma)
+        this.purchaseRoutes = new PurchaseRoutes(app, this.prisma)
     }
     async RunServer(port: number) {
         try {
@@ -48,6 +51,7 @@ export class Server {
         this.schedulingRoutes.SetupSchedulingRoutes()
         this.serviceRoutes.SetupServiceRoutes()
         this.productRoutes.SetupProductsRoutes()
+        this.purchaseRoutes.SetupPurchaseRoutes()
 
     }
     private SetErrorHandler() {
