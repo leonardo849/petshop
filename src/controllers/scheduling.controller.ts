@@ -6,11 +6,21 @@ import { ServiceService } from "../services/service.service.js";
 import { PetService } from "../services/pet.service.js";
 import { CustomerService } from "../services/customer.service.js";
 import { CreateSchedulingDTO, UpdateSchedulingStatusDTO } from "../dto/scheduling.dto";
+import { ProductService } from "../services/product.service.js";
+import { PurchaseService } from "../services/purchase.service.js";
 
 export class SchedulingController {
     private schedulingService: SchedulingService
     constructor(app: FastifyInstance, prisma: PrismaClient) {
-        this.schedulingService = new SchedulingService(app, prisma, new WorkerService(app, prisma), new ServiceService(app, prisma), new PetService(prisma, app, new CustomerService(app, prisma)))
+        const productService: ProductService = new ProductService(prisma, app)
+        const purchaseService =  new PurchaseService(prisma, app, productService)
+        const serviceService = new ServiceService(app, prisma)
+        const customerService = new CustomerService(app, prisma)
+        const petService = new PetService(prisma, app, customerService)
+        this.schedulingService = new SchedulingService(app, prisma, serviceService, petService)
+        const workerService = new WorkerService(app, prisma, purchaseService)
+        this.schedulingService.SetWorkerService(workerService)
+        workerService.SetSchedulingService(this.schedulingService)
     }
     async CreateScheduling(request: FastifyRequest, reply: FastifyReply) {
         const body = request.body as CreateSchedulingDTO

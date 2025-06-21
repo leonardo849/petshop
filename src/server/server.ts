@@ -93,6 +93,7 @@ export class Server {
             } catch (error) {
                 console.error(`error in check schedulings: ${error}`)
             }
+        await run()
         setInterval(run, 120 * 60 * 1000)
         }
     }

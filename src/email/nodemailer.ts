@@ -16,7 +16,7 @@ export class EmailService {
         } as  SMTPTransport.Options)
         console.log("email service is ready!")
     }
-    async SendEmail(to: string, subject: string) {
-        this.transport.sendMail({from: process.env.USER, to: to, subject})
+    async SendEmail(to: string, subject: string, html: string) {
+        this.transport.sendMail({from: process.env.USER, to: to, subject, html})
     }
 }

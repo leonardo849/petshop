@@ -52,4 +52,20 @@ export class PurchaseService {
             id: purchase.id
         }
     }
+    async GetValueOfPurchases(month: number, year: number): Promise<number> {
+        const firstDayOfMonth = new Date(year, month, 1);
+        const firstDayOfNextMonth = new Date(year, month + 1, 1);
+        const filter = {
+            createdAt: {
+                gte: firstDayOfMonth,
+                lt: firstDayOfNextMonth
+            }
+        }
+        const purchases = await this.purchaseModel.findMany({where: filter})
+        let revenue: number = 0
+        if (purchases.length > 0) {
+            revenue = (purchases.reduce((accumulator, currentValue) => accumulator += currentValue.total, 0))
+        }
+        return revenue
+    }
 }

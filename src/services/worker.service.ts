@@ -6,13 +6,22 @@ import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { HashMethods } from "../crypto/hash-password.js";
 import { JWT } from "../crypto/jwt.js";
-import { IPayload } from "../types/interfaces/payload.js";
+import { EmailService } from "../email/nodemailer.js";
+import { PurchaseService } from "./purchase.service.js";
+import { SchedulingService } from "./scheduling.service.js";
 
 
 export class WorkerService {
     private workerModel
-    constructor(private readonly app: FastifyInstance, prisma: PrismaClient) {
+    private nodeMailer: EmailService
+    private schedulingService!: SchedulingService
+    constructor(private readonly app: FastifyInstance, prisma: PrismaClient, private readonly purchaseService: PurchaseService
+    ) {
         this.workerModel = prisma.worker
+        this.nodeMailer = new EmailService()
+    }
+    SetSchedulingService(schedulingService: SchedulingService) {
+        this.schedulingService = schedulingService
     }
     async CreateWorker(body: CreateWorkerDTO) {
         const errors = await validate(plainToInstance(CreateWorkerDTO, body))
@@ -91,5 +100,31 @@ export class WorkerService {
         }
     
         return worker
+    }
+    async GenerateReport(email: string) {
+        const workers = await this.workerModel.findMany({
+            select: {
+                salary: true,
+            }
+        })
+
+        const salaryExpenses = workers.reduce((accumulator, currentWorker) => {
+            return accumulator + currentWorker.salary
+        }, 0)
+
+        let revenue = 0
+        revenue += await this.purchaseService.GetValueOfPurchases(new Date().getFullYear(), new Date().getMonth())
+        revenue += await this.schedulingService.GetValueOfSchedulings(new Date().getMonth(), new Date().getFullYear())
+        const message = `
+            <h1>
+            salaryExpenses: ${salaryExpenses}<br>
+            revenue: ${revenue}
+            </h1>
+        `
+
+        await this.nodeMailer.SendEmail(email, "monthly report", message)
+        return {
+            message: "report was generated"
+        }
     }
 }

@@ -142,13 +142,14 @@ export function generateString(length: number): string {
 
 const workerEmail = "batman@gmail.com"
 
+const emailManager = "managerForTests123456@gmail.com"
 
 describe("test workers", () => {
     beforeAll(async () => {
     const name = generateString(50)
     const password = "x[+4[ZC8C8C4Hi"
     const hash = await HashMethods.HashPassword(password)
-    const body: CreateWorkerDTO = {email: process.env.REALEMAILMANAGER as string, name: name, password: hash, role: "MANAGER", salary: 1500}
+    const body: CreateWorkerDTO = {email: emailManager, name: name, password: hash, role: "MANAGER", salary: 1500}
     let manager = await prisma.worker.findFirst({where:{email: body.email}})
     if (!manager) {
         manager = await prisma.worker.create({data: body})
@@ -161,7 +162,7 @@ describe("test workers", () => {
     it("create worker", async () => {
         const password = "x[+4[ZC8C8C4Hi"
         const body: CreateWorkerDTO = {
-            email: process.env.REALEMAILMANAGER as string,
+            email: "testworkerveterian@gmail.com",
             name: generateString(20),
             password: password,
             role: "VETERINARIAN",
@@ -169,6 +170,7 @@ describe("test workers", () => {
         }
         const {status} = await WorkerControllerTests.CreateWorker(body)
         expect([200, 409]).toContain(status)
+        await prisma.worker.delete({where:{email: body.email}})
     })
     it("get workers", async () => {
         const {data} = await WorkerControllerTests.GetAllWorkers()
@@ -211,6 +213,7 @@ describe("test workers", () => {
         const status = await WorkerControllerTests.DeleteWorker(workerDeleted.email)
         expect(status).toBe(200)
     })
+    
     
 })
 

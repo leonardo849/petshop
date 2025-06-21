@@ -32,6 +32,10 @@ export class WorkerRoutes {
                 preHandler: isSameEmail,
                 handler: this.workerController.FindOneWorkerByEmail.bind(this.workerController)
             })
+            app.get("/report", {
+                preHandler: isManager,
+                handler: this.workerController.GetMonthlyReport.bind(this.workerController)
+            })
         }, {prefix: "worker"})
         console.log(`worker's routes are running!`)
     }

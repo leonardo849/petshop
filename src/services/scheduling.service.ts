@@ -9,10 +9,14 @@ import { PetService } from "./pet.service.js";
 
 export class SchedulingService {
     private schedulingModel
-    constructor(private readonly app: FastifyInstance, prisma: PrismaClient, private readonly workerService: WorkerService, 
+    private workerService!: WorkerService
+    constructor(private readonly app: FastifyInstance, prisma: PrismaClient,  
         private readonly serviceService: ServiceService, private readonly petService: PetService
     ) {
         this.schedulingModel = prisma.scheduling
+    }
+    SetWorkerService(workerService: WorkerService) {
+        this.workerService = workerService
     }
     async CreateScheduling(body: CreateSchedulingDTO) {
         const errors = await validate(plainToInstance(CreateSchedulingDTO, body))
@@ -70,5 +74,19 @@ export class SchedulingService {
         return {
             message: "scheduling status was updated"
         }
+    }
+    async GetValueOfSchedulings(month: number, year: number) {
+        const firstDayOfMonth = new Date(year, month, 1);
+        const firstDayOfNextMonth = new Date(year, month + 1, 1);
+        const filter = {
+            createdAt: {
+                gte: firstDayOfMonth,
+                lt: firstDayOfNextMonth
+            }
+        }
+        const schedulings = await this.schedulingModel.findMany({where: filter, include: {service: true}})
+        let revenue: number = 0
+        revenue = schedulings.reduce(((totalValue, accurentValue) => totalValue += accurentValue.service.price), 0)
+        return revenue
     }
 }
