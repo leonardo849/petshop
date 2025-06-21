@@ -42,7 +42,7 @@ export class WorkerService {
         return await this.workerModel.findMany({take: take,skip: skip ,omit: {password: true}, orderBy: {salary: "desc"}})
     }
     async FindWorkerByEmail(email: string, omitPassword: boolean = true) { 
-        const worker = await this.workerModel.findFirst({omit: {password: omitPassword}, where:{email}, include: {schedulings: true}})
+        const worker = await this.workerModel.findFirst({omit: {password: omitPassword}, where:{email}, include: {schedulings: true, sales: true}})
         if (!worker) {
             throw this.app.httpErrors.notFound(`worker with email ${email} wasn't found`)
         }
@@ -89,6 +89,7 @@ export class WorkerService {
         if (!worker) {
             throw this.app.httpErrors.notFound("worker wasn't found")
         }
+    
         return worker
     }
 }

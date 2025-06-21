@@ -13,6 +13,7 @@ import { ProductRoutes } from "./routes/product.routes.js";
 import { checkException } from "./middlewares/check-exception.js";
 import { PurchaseRoutes } from "./routes/purchase.routes.js";
 
+
 export class Server {
     private prisma: PrismaClient = new PrismaClient()
     private workerRoutes: WorkerRoutes
@@ -37,6 +38,7 @@ export class Server {
             this.SetErrorHandler()
             this.SetupRoutes()
             this.SetupHooks()
+            this.CheckSchedulings()
             await this.app.listen({host: "0.0.0.0", port: port})
             console.log(`server is running on port ${port}`)
         } catch (error) {
@@ -72,5 +74,26 @@ export class Server {
             await verifyJWT(request, reply)
             await isOutOfDate(request, reply, this.app, this.prisma)
         })
+    }
+    private CheckSchedulings() {
+        const run = async () => {
+            try {
+                const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+                await this.prisma.scheduling.updateMany({
+                    where: {
+                        date: {
+                            lt: twoHoursAgo
+                        },
+                        status: "SCHEDULED"
+                    },
+                    data: {
+                        status: "CANCELED"
+                    }
+                })
+            } catch (error) {
+                console.error(`error in check schedulings: ${error}`)
+            }
+        setInterval(run, 120 * 60 * 1000)
+        }
     }
 }

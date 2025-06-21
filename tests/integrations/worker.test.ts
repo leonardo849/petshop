@@ -1,4 +1,4 @@
-import { Pet,  Worker } from "../../generated"
+import { Customer, Pet,  Worker } from "../../generated"
 import { CreateWorkerDTO, UpdateWorkerDTO } from "../../src/dto/worker.dto"
 import {LoginDTO} from "../../src/dto/login.dto"
 import axios from "axios"
@@ -7,7 +7,8 @@ import {prisma} from "../setup"
 import {url} from "../setup"
 import {CreateServiceDTO} from "../../src/dto/service.dto"
 import {CreateSchedulingDTO, UpdateSchedulingStatusDTO} from "../../src/dto/scheduling.dto"
-
+import {CreatePurchaseDTO} from "../../src/dto/purchase.dto"
+import {CreateProductDTO} from "../../src/dto/product.dto"
 
 
 
@@ -110,6 +111,18 @@ class WorkerControllerTests {
         })
         return response.status
     }
+    static async CreateProduct(body: CreateProductDTO): Promise<number> {
+        const response = await axios.post(`${url}/product/create`, body, {
+            headers: {Authorization: `Bearer ${token}`}
+        })
+        return response.status
+    }
+    static async CreatePurchase(body: CreatePurchaseDTO, tokenCashier: string): Promise<number> {
+        const response = await axios.post(`${url}/purchase/create`, body, {
+            headers: {Authorization: `Bearer ${tokenCashier}`}
+        })
+        return response.status
+    }
 }
 
 
@@ -198,25 +211,50 @@ describe("test workers", () => {
         const status = await WorkerControllerTests.DeleteWorker(workerDeleted.email)
         expect(status).toBe(200)
     })
+    
+})
+
+
+describe("test pets ", () => {
     it("find all pets", async () => {
         const pets = await WorkerControllerTests.FindAllPets()
         expect(pets.length).toBeGreaterThan(0)
         expect(pets[0]).toHaveProperty("name")
         expect(pets[0]).toHaveProperty("race")
     })
+})
+
+describe("test services", () => {
     it("create one service", async () => {
         const body: CreateServiceDTO = {
             description: "workers are going to bathe your pet",
-            name: "bath",
+            name: "bathTest",
             price: 30
         }
         const status = await WorkerControllerTests.CreateService(body)
         expect(status).toBe(200)
     })
+})
+
+
+describe("test products", () => {
+    it ("create product", async () => {
+        const productBody: CreateProductDTO = {
+            description: "a bone for your dog",
+            name: "boneTest",
+            price: 3,
+            quantity: 10
+        }
+        const status = await WorkerControllerTests.CreateProduct(productBody)
+        expect(status).toBe(200)
+    })
+})
+
+
+describe("test scheduling",  () => {
     let idScheduling: string
-    // let service 
-    // let pet 
-    // let workers
+    const worker1: {email: string, id: string} = {email: `worker1${Date.now()}@gmail.com`, id: ""}
+    const worker2: {email: string, id: string} = {email: `worker2${Date.now()}@gmail.com`, id: ""}
     it("create one scheduling", async () => {
         const email = "customerscheduling@gmail.com"
         const hash = await HashMethods.HashPassword("x[+4[ZC8C8C4Hi")
@@ -231,7 +269,7 @@ describe("test workers", () => {
             }
         })
         } 
-        let service = await prisma.service.findFirst({where:{name: "GROOMING"}})
+        let service = await prisma.service.findFirst({where:{name: "GROOMMING"}})
         if (!service) {
             service = await prisma.service.create({data: {description: generateString(20),name: "GROMMING",price: 50}})
         }
@@ -245,12 +283,20 @@ describe("test workers", () => {
          }}})
         }
 
-        const workers = await Promise.all([
-            prisma.worker.create({data: {email:  `worker1${Date.now()}@gmail.com`, name: generateString(30), password: hash, role: "SERVICEPROVIDER", salary: 2000}}),
-            prisma.worker.create({data: {email:  `worker2${Date.now()}@gmail.com`, name: generateString(30), password: hash, role: "SERVICEPROVIDER", salary: 2000}})
+        
+        const workers: Worker[] = await Promise.all([
+            prisma.worker.create({data: {email:worker1.email, name: generateString(30), password: hash, role: "SERVICEPROVIDER", salary: 2000}}),
+            prisma.worker.create({data: {email: worker2.email, name: generateString(30), password: hash, role: "SERVICEPROVIDER", salary: 2000}})
             ]
         )
+
+        worker1.id = workers[0].id
+        worker2.id = workers[1].id
+
+
         
+        
+
         const body: CreateSchedulingDTO = {
             date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
             petID: pet.id,
@@ -273,4 +319,71 @@ describe("test workers", () => {
         const status = await WorkerControllerTests.UpdateScheduling(idScheduling, body)
         expect(status).toBe(200)
     })
+    afterAll(async () => {
+        const workersIds = [worker1.id, worker2.id]
+        await prisma.$transaction(async (tx) => {
+            await tx.workersOnSchedulings.deleteMany({
+            where: { workerID: { in: workersIds } }
+            })
+
+            await tx.worker.deleteMany({
+            where: { id: { in: workersIds } }
+            })
+        })
+    })
 })
+
+describe("test purchases", () => {
+    let customerID: string
+    const cashierEmail = "cashier123456@gmail.com"
+    it("create purchase", async () => {
+        const hash = await HashMethods.HashPassword("0qxZE|b!1B!2")
+        const customerEmail = "customerForPurchase123456@gmail.com"
+        let customer = await prisma.customer.findFirst({where:{email: customerEmail}})
+        if (!customer) {
+            customer = await prisma.customer.create({data:{
+                address: generateString(30),
+                email: customerEmail,
+                name: generateString(40),
+                password: hash
+            }})
+        }
+
+        await prisma.worker.create({data: {
+            email: cashierEmail,
+            name: "cashierForTest",
+            password: hash,
+            role: "CASHIER",
+            salary: 1500,
+        }})
+
+        customerID = customer.id
+        let product = await prisma.product.findFirst({where:{name: "boneTest"}})
+        if (!product) {
+            throw new Error("product doesn't exist")
+        }
+        
+        const responseBody = await WorkerControllerTests.LoginWorker({email: cashierEmail, password: "0qxZE|b!1B!2"})
+        
+        const purchaseCreateDTO: CreatePurchaseDTO = {
+            customerID: customer.id,
+            products: [{productID: product.id, quantity: 2}]
+        }
+
+        const status = await WorkerControllerTests.CreatePurchase(purchaseCreateDTO, responseBody.data.token)
+        expect(status).toBe(200)
+    })
+    afterAll(async () => {
+        await prisma.productsOnPurchase.deleteMany({
+        where: {
+            purchase: {
+            customerID: customerID,
+                }
+            }
+        })
+        await prisma.purchase.deleteMany({where:{customerID: customerID }})
+        await prisma.product.deleteMany({where:{name: "boneTest"}})
+        await prisma.worker.delete({where:{email: cashierEmail}})
+    })
+})
+

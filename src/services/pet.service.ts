@@ -15,6 +15,10 @@ export class PetService {
         if (errors.length > 0) {
             throw this.app.httpErrors.badRequest(`errors: ${errors}`)
         }
+        const dateOfBirthInDate = new Date(body.dateOfBirth)
+        if (dateOfBirthInDate > new Date()) {
+            throw this.app.httpErrors.badRequest("the pet will born yet")
+        }
         const customer = await this.customerService.FindOneCustomerById(id)
         let pet = await this.petModel.findFirst({where:{customerID: customer.id, name: body.name}})
         if (pet) {
@@ -22,7 +26,7 @@ export class PetService {
         }
         pet = await this.petModel.create({data: {
             name: body.name,
-            dateOfBirth: new Date(body.dateOfBirth),
+            dateOfBirth: dateOfBirthInDate,
             race: body.race,
             species: body.species,
             weight: body.weight,
