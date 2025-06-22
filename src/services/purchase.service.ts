@@ -53,8 +53,8 @@ export class PurchaseService {
         }
     }
     async GetValueOfPurchases(month: number, year: number): Promise<number> {
-        const firstDayOfMonth = new Date(year, month, 1);
-        const firstDayOfNextMonth = new Date(year, month + 1, 1);
+        const firstDayOfMonth = new Date(year, month, 1)
+        const firstDayOfNextMonth = new Date(year, month + 1, 1)
         const filter = {
             createdAt: {
                 gte: firstDayOfMonth,

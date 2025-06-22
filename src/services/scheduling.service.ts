@@ -76,17 +76,37 @@ export class SchedulingService {
         }
     }
     async GetValueOfSchedulings(month: number, year: number) {
-        const firstDayOfMonth = new Date(year, month, 1);
-        const firstDayOfNextMonth = new Date(year, month + 1, 1);
+        const firstDayOfMonth = new Date(year, month, 1)
+        const firstDayOfNextMonth = new Date(year, month + 1, 1)
         const filter = {
             createdAt: {
                 gte: firstDayOfMonth,
                 lt: firstDayOfNextMonth
-            }
+            },
+            
         }
-        const schedulings = await this.schedulingModel.findMany({where: filter, include: {service: true}})
+        
+        const schedulings = await this.schedulingModel.findMany({where: {...filter, status: "COMPLETED"}, include: {service: true}})
         let revenue: number = 0
         revenue = schedulings.reduce(((totalValue, accurentValue) => totalValue += accurentValue.service.price), 0)
         return revenue
+    }
+    async CheckSchedulings() {
+        try {
+                const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+                await this.schedulingModel.updateMany({
+                    where: {
+                        date: {
+                            lt: twoHoursAgo
+                        },
+                        status: "SCHEDULED"
+                    },
+                    data: {
+                        status: "CANCELED"
+                    }
+                })
+            } catch (error) {
+                console.error(`error in check schedulings: ${error}`)
+            }
     }
 }

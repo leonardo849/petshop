@@ -47,8 +47,8 @@ export class WorkerService {
             id: worker.id
         }
     }
-    async FindAllWorkers(skip: number, take: number) {
-        return await this.workerModel.findMany({take: take,skip: skip ,omit: {password: true}, orderBy: {salary: "desc"}})
+    async FindAllWorkers(skip?: number, take?: number, role?: Role) {
+        return await this.workerModel.findMany({take: take,skip: skip ,omit: {password: true}, orderBy: {salary: "desc"}, where:{role}})
     }
     async FindWorkerByEmail(email: string, omitPassword: boolean = true) { 
         const worker = await this.workerModel.findFirst({omit: {password: omitPassword}, where:{email}, include: {schedulings: true, sales: true}})
@@ -113,7 +113,7 @@ export class WorkerService {
         }, 0)
 
         let revenue = 0
-        revenue += await this.purchaseService.GetValueOfPurchases(new Date().getFullYear(), new Date().getMonth())
+        revenue += await this.purchaseService.GetValueOfPurchases(new Date().getMonth(), new Date().getFullYear())
         revenue += await this.schedulingService.GetValueOfSchedulings(new Date().getMonth(), new Date().getFullYear())
         const message = `
             <h1>
@@ -123,6 +123,15 @@ export class WorkerService {
         `
 
         await this.nodeMailer.SendEmail(email, "monthly report", message)
+        return {
+            message: "report was generated"
+        }
+    }
+    async SendReportToManagers() {
+        const managers = await this.FindAllWorkers(undefined, undefined, "MANAGER")
+        managers.forEach(async (manager) => {
+            await this.GenerateReport(manager.email)
+        })
         return {
             message: "report was generated"
         }

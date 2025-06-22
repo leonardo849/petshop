@@ -12,6 +12,13 @@ import { ServiceRoutes } from "./routes/service.routes.js";
 import { ProductRoutes } from "./routes/product.routes.js";
 import { checkException } from "./middlewares/check-exception.js";
 import { PurchaseRoutes } from "./routes/purchase.routes.js";
+import { WorkerService } from "../services/worker.service.js";
+import { PurchaseService } from "../services/purchase.service.js";
+import { ProductService } from "../services/product.service.js";
+import { SchedulingService } from "../services/scheduling.service.js";
+import { ServiceService } from "../services/service.service.js";
+import { PetService } from "../services/pet.service.js";
+import { CustomerService } from "../services/customer.service.js";
 
 
 export class Server {
@@ -38,7 +45,7 @@ export class Server {
             this.SetErrorHandler()
             this.SetupRoutes()
             this.SetupHooks()
-            this.CheckSchedulings()
+            await this.SetupRoutines()
             await this.app.listen({host: "0.0.0.0", port: port})
             console.log(`server is running on port ${port}`)
         } catch (error) {
@@ -75,26 +82,43 @@ export class Server {
             await isOutOfDate(request, reply, this.app, this.prisma)
         })
     }
-    private CheckSchedulings() {
+    private async SetupRoutines() {
+        const productService = new ProductService(this.prisma, this.app)
+        const purchaseService = new PurchaseService(this.prisma, this.app, productService)
+        const workerService = new WorkerService(this.app, this.prisma, purchaseService)
+        const serviceService = new ServiceService(this.app, this.prisma)
+        const customerService = new CustomerService(this.app, this.prisma)
+        const petService = new PetService(this.prisma, this.app, customerService)
+        const schedulingService = new SchedulingService(this.app, this.prisma, serviceService, petService)
+        schedulingService.SetWorkerService(workerService)
+        workerService.SetSchedulingService(schedulingService)
+        await this.CheckSchedulings(schedulingService)
+        await this.SendMonthlyReport(workerService)
+    }
+    private async CheckSchedulings(schedulingService: SchedulingService) {
+        
         const run = async () => {
             try {
-                const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
-                await this.prisma.scheduling.updateMany({
-                    where: {
-                        date: {
-                            lt: twoHoursAgo
-                        },
-                        status: "SCHEDULED"
-                    },
-                    data: {
-                        status: "CANCELED"
-                    }
-                })
+               await schedulingService.CheckSchedulings()
             } catch (error) {
                 console.error(`error in check schedulings: ${error}`)
             }
+        }
         await run()
         setInterval(run, 120 * 60 * 1000)
+    }
+    private async SendMonthlyReport(workerService: WorkerService) {
+        const run = async () => {
+            try {
+                if (new Date().getDate() === 1) {
+                    await workerService.SendReportToManagers()
+                }
+            } catch (error) {
+                console.error(`error in monthly reports: ${error}`)
+            }
         }
+        await run()
+        setInterval(run, 1440 * 60 * 1000)
+
     }
 }
