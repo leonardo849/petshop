@@ -18,7 +18,7 @@ A RESTful API for managing pet shop operations, including appointments, customer
 
 ```bash
 git clone https://github.com/leonardo849/petshop.git
-cd petshop-api
+cd petshop
 npm install
 npm run generate
 ```
